@@ -1,0 +1,88 @@
+HeadNode: 
+  CustomActions: 
+    OnNodeConfigured: 
+      Args: 
+        - "4.1.2"
+        - "4.2.0"
+      Script: "s3://S3_BUCKETNAME/install-rsw.sh"
+  Iam: 
+    S3Access: 
+      - BucketName: S3_BUCKETNAME
+  InstanceType: t2.medium
+  Networking: 
+    AdditionalSecurityGroups: 
+      - SECURITYGROUP_RSW
+    SubnetId: SUBNETID
+  Ssh: 
+    KeyName: KEY 
+  LocalStorage:
+    RootVolume:
+      Size: 100 
+Image: 
+  Os: ubuntu2004
+Region: REGION
+Scheduling: 
+  Scheduler: slurm
+  SlurmQueues: 
+    - Name: all 
+      ComputeResources: 
+        - Name: rstudio
+          InstanceType: t2.xlarge
+          MaxCount: 5
+          MinCount: 1 
+          Name: rstudio
+      CustomActions: 
+        OnNodeConfigured: 
+          Script: "s3://S3_BUCKETNAME/install-compute.sh" 
+      Iam: 
+        S3Access: 
+          - BucketName: hpc-scripts1234
+      Networking: 
+        SubnetIds: 
+          - SUBNETID
+    - Name: mpi
+      ComputeResources:
+        - Name: efa
+          InstanceType: c5n.18xlarge
+          MaxCount: 5
+          MinCount: 0
+          Name: efa
+          Efa:
+            Enabled: TRUE
+      CustomActions:
+        OnNodeConfigured:
+          Script: "s3://S3_BUCKETNAME/install-compute.sh"
+      Iam:
+        S3Access:
+          - BucketName: S3_BUCKETNAME
+      Networking:
+        PlacementGroup:
+          Enabled: TRUE
+        SubnetIds: 
+          - SUBNETID
+    - Name: gpu 
+      ComputeResources:
+        - Name: gpu 
+          InstanceType: p3.2xlarge 
+          MaxCount: 5
+          MinCount: 0
+          Name: gpu
+      CustomActions:
+        OnNodeConfigured:
+          Script: "s3://S3_BUCKETNAME/install-compute.sh"
+      Iam:
+        S3Access:
+          - BucketName: S3_BUCKETNAME
+      Networking:
+        PlacementGroup:
+          Enabled: TRUE
+        SubnetIds: 
+          - SUBNETID
+
+Tags:
+  - Key: rs:environment
+    Value: development
+  - Key: rs:owner
+    Value: michael.mayer@rstudio.com
+  - Key: rs:project
+    Value: solutions 
