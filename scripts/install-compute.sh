@@ -2,6 +2,9 @@
 
 apt-get update -y
 
+#Install Java support
+apt-get install -y openjdk-11-jdk openjdk-8-jdk
+
 # Add sample user 
 groupadd --system --gid 1001 rstudio
 useradd -s /bin/bash -m --system --gid rstudio --uid 1001 rstudio
