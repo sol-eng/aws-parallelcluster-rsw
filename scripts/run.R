@@ -91,14 +91,11 @@ sink()
 # Prepare for BioConductor
 options(BioC_mirror = "https://packagemanager.rstudio.com/bioconductor")
 
-# Check if BiocManager is installed - needed to determine BioConductor Version
-if ( ! "BiocManager" %in% utils::installed.packages() ) {
-    Sys.setenv(R_PROFILE_USER = "/dev/null")
-    system(paste("mkdir -p", Sys.getenv("R_LIBS_USER")))
-    utils::install.packages("BiocManager",quiet=TRUE,repos="https://cran.r-project.org/", lib=Sys.getenv("R_LIBS_USER"))
-    Sys.unsetenv("R_PROFILE_USER")
-  }
-library(BiocManager, lib.loc=Sys.getenv("R_LIBS_USER"),quietly=TRUE,verbose=FALSE)
+# Make sure BiocManager is loaded - needed to determine BioConductor Version
+if(dir.exists("/tmp/bioc")) {unlink("/tmp/bioc",recursive=TRUE)}
+dir.create("/tmp/bioc")
+install.packages("BiocManager","/tmp/bioc", repos="stat.ethz.ch/CRAN")
+library(BiocManager,lib.loc="/tmp/bioc",quietly=TRUE,verbose=FALSE)
 
 # Version of BioConductor as given by BiocManager (can also be manually set)
 biocvers <- BiocManager::version()
