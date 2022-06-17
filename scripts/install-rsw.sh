@@ -42,7 +42,7 @@ setfacl -R --set-file=/tmp/acl /scratch/renv
 # Install RSWB
 groupadd --system --gid 900 rstudio-server
 useradd -s /bin/bash -m --system --gid rstudio-server --uid 900 rstudio-server
-RSWB_VER=2021.09.1-372.pro1
+RSWB_VER=2022.02.3-492.pro3
 curl -O https://download2.rstudio.org/server/bionic/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb
 gdebi -n rstudio-workbench-${RSWB_VER}-amd64.deb
 rm -f rstudio-workbench-${RSWB_VER}.pro6-amd64.deb
