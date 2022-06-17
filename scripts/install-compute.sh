@@ -18,8 +18,9 @@ grep slurm /etc/fstab | sed 's#/opt/slurm#/usr/lib/rstudio-server#g' | sudo tee 
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/R#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/rstudio#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/scratch#g' | sudo tee -a /etc/fstab
+grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/apptainer#g' | sudo tee -a /etc/fstab
 
-mkdir -p /usr/lib/rstudio-server /opt/{R,rstudio} /scratch
+mkdir -p /usr/lib/rstudio-server /opt/{R,rstudio,apptainer} /scratch
 
 mount -a
 
@@ -33,3 +34,10 @@ rm -rf /etc/profile.d/modules.sh
 
 #remove default R version (too old)
 apt remove -y r-base-core
+
+#Install apptainer
+export APPTAINER_VER=1.0.2
+wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/apptainer_${APPTAINER_VER}_amd64.deb && \
+        dpkg -i apptainer_${APPTAINER_VER}_amd64.deb && \
+        rm -f apptainer_${APPTAINER_VER}_amd64.deb*
+

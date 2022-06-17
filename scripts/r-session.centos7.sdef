@@ -1,0 +1,84 @@
+Bootstrap: docker
+From: rstudio/r-session-complete:centos7-2022.02.3-492.pro3 
+
+# needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
+# set binaryflag to "" in order to stick to source RPMs
+%files
+    run.R /
+
+%post
+    export SLURM_VERSION=21.08.8-2
+    # Install Java JDK (optional) 
+    yum -y install java-11-openjdk-devel 
+
+    # Set up of developer toolset 11 to use a more recent version of the 
+    # compiler toolchain (optional)
+    yum -y install centos-release-scl
+    yum -y install devtoolset-11
+
+    for R_VERSION in `ls /opt/R`
+       do
+
+       # Set up developer toolset 11 for R only (optional)
+       cat << EOF > /opt/R/${R_VERSION}/lib/R/etc/Renviron.site
+# Developer Toolset Root directory
+DEVTOOLSROOT=/opt/rh/devtoolset-11/root
+
+# Environment variables needed
+PATH=\${DEVTOOLSROOT}/usr/bin:\${PATH}
+LD_TMP=\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib64
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib64/dyninst:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib/dyninst:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib64:\${LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=\${DEVTOOLSROOT}/usr/lib:\${LD_LIBRARY_PATH}:\${LD_TMP}
+PKG_CONFIG_PATH=\${DEVTOOLSROOT}/usr/lib64/pkgconfig:\${PKG_CONFIG_PATH}
+INFOPATH=\${DEVTOOLSROOT}/usr/share/info:\${INFOPATH}
+MANPATH=\${DEVTOOLSROOT}/usr/share/man:\${MANPATH}
+X_SCLS=devtoolset-11
+PCP_DIR=\${DEVTOOLSROOT}
+
+EOF
+
+    	# Set up R to use latest CRAN and bioconductor repositories 
+        # from public RSPM (optional)
+        /opt/R/${R_VERSION}/bin/Rscript /run.R 
+
+        # Update R Makevars to use the new compiler features from  
+        # developer toolset 11 (optional)
+        R_HOME=/opt/R/${R_VERSION}/lib/R
+        if [ -z ${R_HOME} ]; then echo "R_HOME not set"; exit 1; fi
+        for std in 14 17 20
+        do
+          sed -i "s/^CXX${std} .?*/CXX${std} = g++/ ; \
+          s/^CXX${std}FLAGS .*/CXX${std}FLAGS = -g -O2 \$(LTO)/ ; \
+          s/^CXX${std}PICFLAGS .*/CXX${std}PICFLAGS = -fpic/ ; \
+          s/^CXX${std}STD .*/CXX${std}STD = -std=c++${std}/ " \
+          $R_HOME/etc/Makeconf
+        done
+        # Reconfigure R for Java (optional) 
+    	/opt/R/${R_VERSION}/bin/R CMD javareconf 
+
+    done
+
+    # SLURM integration (mandatory) 
+    groupadd -g 401 slurm 
+    useradd -u 401 -g 401 slurm  
+    yum -y install munge-devel
+
+    mkdir /tmp/build && \
+	cd /tmp/build && \
+	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
+	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
+	cd slurm-${SLURM_VERSION} && \
+	./configure --prefix /opt/slurm && \
+	make -j 4 && make install && \
+	cd / && \
+	rm -rf /tmp/build
+
+    # Install zeromq as prereq for clustermq (optional) 
+    yum -y install zeromq
+
+    rm -rf /var/cache/yum/*
+
