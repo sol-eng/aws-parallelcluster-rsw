@@ -131,6 +131,7 @@ cat("\n")
 cat(paste0("Path: ",r_home,"\n"))
 cat(paste0("Label: R","\n"))
 cat(paste0("Repo: ",filename,"\n"))
+cat(paste0("Script: /opt/R/",rverstring,"/lib/R/etc/ldpaths \n"))
 cat("\n")
 sink()
 
