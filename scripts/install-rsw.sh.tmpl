@@ -4,7 +4,7 @@
 apt-get update -y
 apt-get install -y gdebi-core
 apt-get install -y openjdk-11-jdk openjdk-8-jdk
-
+apt-get install -y libfreetype6-dev libpng-dev libtiff5-dev
 aws s3 cp s3://S3_BUCKETNAME/run.R /tmp
 
 for R_VERSION in "$@" 
@@ -204,8 +204,8 @@ make && make install
 popd
 rm -f spank.tgz
 
-( cd /tmp
-for i in *.sdef
-do
-/usr/bin/apptainer build /opt/apptainer/containers/${i/sdef/simg} $i
-done ) & 
+#( cd /tmp
+#for i in *.sdef
+#do
+#/usr/bin/apptainer build /opt/apptainer/containers/${i/sdef/simg} $i
+#done ) & 
