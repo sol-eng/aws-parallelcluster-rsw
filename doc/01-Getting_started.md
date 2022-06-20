@@ -69,8 +69,11 @@ Once done, a `source aws-parallelcluster/bin/activate` will activate the `venv`,
 
 ## Edit config variables
 
-* Edit lines 3 to 9 of `deploy.sh` to reflect the appropriate details of your environment. 
-* Once done, run `./deploy.sh`. This will copy scripts and config files to the existing S3 bucket and trigger the installation of the HPC cluster. 
+Edit lines 3 to 9 of `deploy.sh` to reflect the appropriate details of your environment. 
+
+## Start the deployment 
+
+Run `./deploy.sh`. This will copy scripts and config files to the existing S3 bucket and trigger the installation of the HPC cluster. 
 
 ## Bash aliases
 
