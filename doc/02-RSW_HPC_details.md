@@ -18,7 +18,7 @@
 * Install RSW config files into `/opt/rstudio/etc/rstudio`. Configure a `systemctl` override to define `RSTUDIO_CONFIG_DIR=/opt/rstudio/etc/rstudio`
 * Export `/usr/lib/rstudio-server` from the head node and mount it on all the compute nodes
 * Define [`launcher-sessions-callback-address`](https://rstudiopbc.atlassian.net/wiki/spaces/PRO/pages/49578078/Setting+up+SLURM+Launcher+with+RSW#5.-Define-launcher-sessions-callback-address) as `http://myip:8787` where `myip=$( curl http://checkip.amazonaws.com)`
-* 
+* make one compute node available all the time to ensure a fast R session start.  
 
 ### `systemctl` override
 
