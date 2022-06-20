@@ -26,4 +26,4 @@ Run `./deploy.sh`. This will copy scripts and config files to the existing S3 bu
 
 # More information 
 
-See [docs](./docs) folder. 
+See [doc](./doc) folder. 
