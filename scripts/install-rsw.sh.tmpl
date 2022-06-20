@@ -68,6 +68,9 @@ myip=`curl http://checkip.amazonaws.com`
 
 mkdir -p /tmp/rstudio
 mkdir -p /opt/rstudio/shared-storage
+
+echo "RSTUDIO_DISABLE_PACKAGE_INSTALL_PROMPT=yes" > /etc/rstudio/launcher-env
+
 cat > /tmp/rstudio/rserver.conf << EOF
 # Shared storage
 server-shared-storage-path=/opt/rstudio/shared-storage
