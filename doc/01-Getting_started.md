@@ -74,7 +74,7 @@ Once done, a `source aws-parallelcluster/bin/activate` will activate the `venv`,
 
 ## Bash aliases
 
-For conveniency, `scripts/aliases.sh` defines a number of aliases for `pcluster` commands that make it much easier to work with. 
+For convenience, `scripts/aliases.sh` defines a number of aliases for `pcluster` commands that make it much easier to work with. 
 
 ```
 pcluster-create() { pcluster create-cluster --cluster-name="$1" --cluster-config=configs/cluster-config-wb.yaml}

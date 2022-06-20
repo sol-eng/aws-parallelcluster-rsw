@@ -6,7 +6,7 @@
 
 * Install RSW on the SLURM Head node or on a submit node: The minimum requirement is that RSW must be installed on a submit node (SLURM client). On very large HPC clusters the RSW installation on a dedicated submit node is preferred while for small HPC clusters (10s of nodes) it is perfectly fine to have RSW installed on the SLURM Head node (which is also a submit node).
 
-* Share RSW software to compute nodes via NFS. This makes upgrades much easier. You no longer need to separately upgrade the RSW server and the compute nodes. Once you upgrade RSW server, the clients are automatically upgraded as well. Also, you will not need to manually deploy a tarball to each compute node either.
+* Share RSW software to compute nodes via NFS. This makes upgrades much easier. You no longer need to separately upgrade the RSW server and the compute nodes. Once you upgrade RSW server, the clients are automatically upgraded as well. Also, you will not need to manually deploy a tar ball to each compute node either.
 
 * Have RSW configuration files in a shared non-standard location
 
@@ -72,7 +72,7 @@ into `rserver.conf`.
 
 [CRAN](https://cran.r-project.org) and [BioConductor](https://bioconductor.org) are fairly different repositories for R packages, starting with their different scope. 
 
-CRAN is constantly evolving (packages being added and updated every day) while BioConductor produces versioned releases of the repository. Such a version is then compatible with a single R version. In order to mimick compatibility with an R version, we use a time-based snapshot of CRAN with a time stamp about 60 days post the R version release. This should ensure that sufficient time has elapsed to fix any general issues in R packages as a consequence of the new R version. On the other hand the time stamp is not too far away either to start introducing any breakages from too new versions of R packages. 
+CRAN is constantly evolving (packages being added and updated every day) while BioConductor produces versioned releases of the repository. Such a version is then compatible with a single R version. In order to mimic compatibility with an R version, we use a time-based snapshot of CRAN with a time stamp about 60 days post the R version release. This should ensure that sufficient time has elapsed to fix any general issues in R packages as a consequence of the new R version. On the other hand the time stamp is not too far away either to start introducing any breakage from too new versions of R packages. 
 
 ## Managing central R installation on the  Head node
 
@@ -104,7 +104,7 @@ An inherently problematic issue in R is Java integration. We are using OpenJDK 8
 
 ## Auxiliary packages
 
-RStudio IDE prodides great integration to facilitate the development of shiny apps, producing RMarkdown documents etc... This integration is achieved by calling the [appropriate auxiliary R packages](https://github.com/rstudio/rstudio/blob/main/src/cpp/session/resources/dependencies/r-packages.json) in the background. 
+RStudio IDE provides great integration to facilitate the development of shiny apps, producing RMarkdown documents etc... This integration is achieved by calling the [appropriate auxiliary R packages](https://github.com/rstudio/rstudio/blob/main/src/cpp/session/resources/dependencies/r-packages.json) in the background. 
 
 A default installation of R typically only contains the recommended packages. Any other package needs to be installed either by the user or the admin of a given system. In this case we pre-install all needed auxiliary packages for a given R version (using its repository setup) and add them in a separate folder that is then added via `.libPaths()`. As a consequence we can set `RSTUDIO_DISABLE_PACKAGE_INSTALL_PROMPT=yes` in `launcher-env` for increased performance and better user experience. 
 
