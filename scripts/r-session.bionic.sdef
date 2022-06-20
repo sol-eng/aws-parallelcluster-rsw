@@ -46,12 +46,14 @@ From: rstudio/r-session-complete:bionic-2022.02.3-492.pro3
 	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
 	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
 	cd slurm-${SLURM_VERSION} && \
-	./configure --prefix /opt/slurm && \
+	./configure --prefix /usr/local/slurm && \
 	make -j 4 && make install && \
 	cd / && \
 	rm -rf /tmp/build
 
 
 %environment
-    export PATH=/opt/slurm/bin:$PATH
+    export PATH=/usr/local/slurm/bin:$PATH
+    export SLURM_CONF=/opt/slurm/etc/slurm.conf
+
 
