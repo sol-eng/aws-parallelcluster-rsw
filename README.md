@@ -1,5 +1,5 @@
 # aws-parallelcluster-rsw
-An opinionated setup of RSW for the use with AWS ParallelCluster
+An opinionated setup of RStudio Workbench (RSW) for the use with AWS ParallelCluster
 
 # QuickStart
 
