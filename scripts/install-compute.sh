@@ -5,6 +5,9 @@ apt-get update -y
 #Install Java support
 apt-get install -y openjdk-11-jdk openjdk-8-jdk
 
+# install venv support 
+apt-get install -y python3.8-venv
+
 #R package deps (ragg)
 apt-get install -y libfreetype6-dev libpng-dev libtiff5-dev
 
@@ -44,3 +47,13 @@ wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/
         dpkg -i apptainer_${APPTAINER_VER}_amd64.deb && \
         rm -f apptainer_${APPTAINER_VER}_amd64.deb*
 
+
+#Update CUDA and add cuDNN
+if ( lspci | grep NVIDIA ); then 
+   wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+   mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+   apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+   add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+   apt-get update
+   apt-get -y install cuda libcudnn8-dev
+fi
