@@ -10,6 +10,7 @@ CERT="/Users/michael/projects/aws/certs/michael.pem"
 
 cat scripts/aliases.tmpl | sed "s#CERT#${CERT}#" > scripts/aliases.sh
 cat scripts/install-rsw.sh.tmpl | sed "s#S3_BUCKETNAME#${S3_BUCKETNAME}#g" > scripts/install-rsw.sh
+cat scripts/install-compute.sh.tmpl | sed "s#S3_BUCKETNAME#${S3_BUCKETNAME}#g" > scripts/install-compute.sh
 aws s3 cp scripts/ s3://${S3_BUCKETNAME} --recursive --exclude security-group.sh --exclude *.tmpl 
 
 cat config/cluster-config-wb.tmpl | \

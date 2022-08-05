@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Install and configure LSF
+aws s3 cp s3://S3_BUCKETNAME/install-lsf.sh /tmp
+bash /tmp/install-lsf.sh
+
 # Install and configure R
 apt-get update -y
 apt-get install -y gdebi-core
