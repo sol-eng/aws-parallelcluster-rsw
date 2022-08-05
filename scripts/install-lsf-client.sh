@@ -24,8 +24,15 @@ else
 fi
 
 if ! ( grep $hostname /opt/lsf/conf/lsf.cluster.docker ); then 
-    sed -i "/^End     Host.*/i $hostname !   !   1   (linux)/" /opt/lsf/conf/lsf.cluster.docker
+    sed -i "/^End     Host.*/i $hostname !   !   1   (linux)" /opt/lsf/conf/lsf.cluster.docker
 fi
+
+cat << EOF > /etc/lsf.sudoers
+LSF_STARTUP_USERS="lsfadmin"
+LSF_STARTUP_PATH=/opt/lsf/10.1/linux2.6-glibc2.3-x86_64/etc
+EOF
+
+chmod 0600 /etc/lsf.sudoers
 
 bctrld start lim 
 bctrld start res
