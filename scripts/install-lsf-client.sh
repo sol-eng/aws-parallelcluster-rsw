@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if ! ( grep "/opt/lsf/" /etc/fstab ); then 
-    grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/lsf#'  >> /etc/fstab
+if ! ( grep /opt/lsf /etc/fstab ); then 
+    grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/lsf#g'  >> /etc/fstab
     mount /opt/lsf
 fi
 
@@ -24,7 +24,7 @@ else
 fi
 
 if ! ( grep $hostname /opt/lsf/conf/lsf.cluster.docker ); then 
-    sed "/^End     Host.*/i $hostname !   !   1   (linux)/" /opt/lsf/conf/lsf.cluster.docker
+    sed -i "/^End     Host.*/i $hostname !   !   1   (linux)/" /opt/lsf/conf/lsf.cluster.docker
 fi
 
 bctrld start lim 
