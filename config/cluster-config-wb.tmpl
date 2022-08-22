@@ -2,7 +2,6 @@ HeadNode:
   CustomActions: 
     OnNodeConfigured: 
       Args: 
-        - "3.6.3"
         - "4.2.0"
       Script: "s3://S3_BUCKETNAME/install-rsw.sh"
   Iam: 
@@ -20,7 +19,7 @@ HeadNode:
     RootVolume:
       Size: 100 
 Image: 
-  Os: ubuntu2004
+  Os: centos7 
 Region: REGION
 Scheduling: 
   Scheduler: slurm

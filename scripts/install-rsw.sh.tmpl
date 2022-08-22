@@ -1,27 +1,21 @@
 #!/bin/bash
 
-# Install and configure LSF
-aws s3 cp s3://S3_BUCKETNAME/install-lsf.sh /tmp
-bash /tmp/install-lsf.sh
-
 # Install and configure R
-apt-get update -y
-apt-get install -y gdebi-core
-apt-get install -y openjdk-11-jdk openjdk-8-jdk
-apt-get install -y libfreetype6-dev libpng-dev libtiff5-dev
+yum install -y epel-release
+yum install -y java-1.8.0-openjdk-devel java-11-openjdk-devel
 aws s3 cp s3://S3_BUCKETNAME/run.R /tmp
 
 for R_VERSION in "$@" 
 do
   echo "xxx R_VERSION : ${R_VERSION}"
-  curl -O https://cdn.rstudio.com/r/ubuntu-2004/pkgs/r-${R_VERSION}_1_amd64.deb
-  gdebi -n r-${R_VERSION}_1_amd64.deb
-  dpkg --info r-${R_VERSION}_1_amd64.deb | grep " Depends" | cut -d ":" -f 2 > /opt/R/$R_VERSION/.depends
-  rm -f r-${R_VERSION}_1_amd64.deb
+  curl -O https://cdn.rstudio.com/r/centos-7/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
+  yum install -y R-${R_VERSION}-1-1.x86_64.rpm
+  rpm -qp --requires R-${R_VERSION}-1-1.x86_64.rpm > /opt/R/$R_VERSION/.depends
+  rm -f R-${R_VERSION}-1-1.x86_64.rpm 
   if [ ${R_VERSION:0:1} == '3' ]; then 
-	export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+	export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
   else 
-	export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
+	export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
   fi
   /opt/R/$R_VERSION/bin/R CMD javareconf 
 #  /opt/R/$R_VERSION/bin/Rscript /tmp/run.R
@@ -47,9 +41,10 @@ setfacl -R --set-file=/tmp/acl /scratch/renv
 groupadd --system --gid 900 rstudio-server
 useradd -s /bin/bash -m --system --gid rstudio-server --uid 900 rstudio-server
 RSWB_VER=2022.07.0-548.pro5
-curl -O https://download2.rstudio.org/server/bionic/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb
-gdebi -n rstudio-workbench-${RSWB_VER}-amd64.deb
-rm -f rstudio-workbench-${RSWB_VER}.pro6-amd64.deb
+curl -O https://download2.rstudio.org/server/centos7/x86_64/rstudio-workbench-rhel-${RSWB_VER}-x86_64.rpm
+yum install -y rstudio-workbench-rhel-${RSWB_VER}-x86_64.rpm
+rpm -qp --requires rstudio-workbench-rhel-${RSWB_VER}-x86_64.rpm /usr/lib/rstudio-server/.depends
+rm -f rstudio-workbench-${RSWB_VER}-x86_64.rpm
 
 for i in server launcher 
 do 
@@ -164,13 +159,12 @@ rstudio-launcher restart
 
 #little hack to get the memory allocation working
 
-sed -i '/^include.*/i NodeName=DEFAULT RealMemory=3928' /opt/slurm/etc/slurm.conf
 sed -i '/^include.*/i SrunPortRange=59000-59999' /opt/slurm/etc/slurm.conf
 
 systemctl restart slurmctld
 
 # Packages for R packages
-apt-get install -y libzmq5  libglpk40 libnode-dev
+yum install -y zeromq-devel 
 
 grep slurm /etc/exports | sed 's/slurm/R/' | sudo tee -a /etc/exports 
 grep slurm /etc/exports | sed 's/slurm/rstudio/' | sudo tee -a /etc/exports      
@@ -183,15 +177,9 @@ mount -a
 
 rm -rf /etc/profile.d/modules.sh
 
-#remove default R version (too old)
-apt remove -y r-base-core
-
-
 #Install apptainer
 export APPTAINER_VER=1.0.2
-wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/apptainer_${APPTAINER_VER}_amd64.deb && \
-	dpkg -i apptainer_${APPTAINER_VER}_amd64.deb && \
-	rm -f apptainer_${APPTAINER_VER}_amd64.deb*
+yum install https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/apptainer-${APPTAINER_VER}.x86_64.rpm
 
 #Configure container folder and export to nodes
 mkdir -p /opt/apptainer/containers
