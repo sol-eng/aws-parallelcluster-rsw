@@ -12,6 +12,7 @@ HeadNode:
   Networking: 
     AdditionalSecurityGroups: 
       - SECURITYGROUP_RSW
+      - sg-0eca6176cf9f4b06a
     SubnetId: SUBNETID
   Ssh: 
     KeyName: KEY 
@@ -25,6 +26,10 @@ Scheduling:
   Scheduler: slurm
   SlurmQueues: 
     - Name: all 
+      ComputeSettings:
+        LocalStorage:
+          RootVolume:
+            Size: 100
       ComputeResources: 
         - Name: rstudio
           InstanceType: t2.xlarge

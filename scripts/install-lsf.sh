@@ -63,3 +63,5 @@ myip=`ifconfig eth0 | grep "inet " | awk '{print $2}'`
 echo "$myip `hostname`" > /opt/lsf/conf/hosts
 
 lsf_daemons start
+
+lsf_daemons restart

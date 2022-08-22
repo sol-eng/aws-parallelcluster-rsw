@@ -1,6 +1,6 @@
 apt-get install -y docker-compose
-mkdir -p /opt/age-license
-pushd /opt/age-license
+mkdir -p /opt/age/license
+pushd /opt/age/license
 for i in altair_licensing_15.0.linux_x64.bin Dockerfile.age-license start-lic.sh docker-compose.yml age.dat
 do
 aws s3 cp s3://hpc-scripts1234/$i . 

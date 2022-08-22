@@ -2,6 +2,7 @@
 
 if ! ( grep /opt/lsf /etc/fstab ); then 
     grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/lsf#g'  >> /etc/fstab
+    mkdir -p /opt/lsf
     mount /opt/lsf
 fi
 
@@ -34,7 +35,10 @@ EOF
 
 chmod 0600 /etc/lsf.sudoers
 
-bctrld start lim 
-bctrld start res
-bctrld start sbd
+source /opt/lsf/conf/profile.lsf 
 
+lsf_daemons start
+
+sleep 20
+
+lsf_daemons restart
