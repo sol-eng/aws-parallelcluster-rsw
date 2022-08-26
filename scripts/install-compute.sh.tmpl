@@ -15,6 +15,16 @@ echo -e "rstudio\nrstudio" | passwd rstudio
 
 yum install -y zeromq-devel
 
+# install venv support
+yum install -y python36-devel python36-setuptools python36-virtualenv
+
+#R package deps (ragg)
+yum install -y freetype-devel libpng-devel libtiff-devel
+
+yum install glpk-devel nodejs-devel
+
+
+
 #mount various FS
 grep slurm /etc/fstab | sed 's#/opt/slurm#/usr/lib/rstudio-server#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/R#g' | sudo tee -a /etc/fstab
