@@ -51,3 +51,12 @@ if ( lspci | grep NVIDIA ); then
    apt-get update
    apt-get -y install cuda libcudnn8-dev
 fi
+
+
+#Update CUDA and add cuDNN
+if ( lspci | grep NVIDIA ); then
+   wget https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo 
+   mv cuda-rhel7.repo /etc/yum.repos.d
+   yum -y install cuda libcudnn8-devel
+fi
+
