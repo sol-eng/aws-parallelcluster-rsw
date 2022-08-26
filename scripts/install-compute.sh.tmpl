@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Remove OS provided R 
+rpm -e R-core R-core-devel R-devel R
 
 #Install Java support
 yum install -y epel-release

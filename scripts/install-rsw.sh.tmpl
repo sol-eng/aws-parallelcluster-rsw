@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Remove OS provided R 
+rpm -e R-core R-core-devel R-devel R
+
 # Install and configure R
 yum install -y epel-release
 yum install -y java-1.8.0-openjdk-devel java-11-openjdk-devel
@@ -18,7 +21,7 @@ do
 	export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
   fi
   /opt/R/$R_VERSION/bin/R CMD javareconf 
-#  /opt/R/$R_VERSION/bin/Rscript /tmp/run.R
+  /opt/R/$R_VERSION/bin/Rscript /tmp/run.R
 done
 
 # prepare renv package cache 
