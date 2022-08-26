@@ -1,5 +1,5 @@
 yum install -y centos-release-scl
-yum install https://yum.osc.edu/ondemand/2.0/ondemand-release-web-2.0-1.noarch.rpm
+yum install -y https://yum.osc.edu/ondemand/2.0/ondemand-release-web-2.0-1.noarch.rpm
 yum install -y ondemand ondemand-dex
 
 iptables -I INPUT -p tcp -m tcp --dport 80 -j ACCEPT
@@ -15,7 +15,7 @@ pubhost=$( host `curl ifconfig.me`  | awk '{print $5}' | sed 's/\.$//' )
 
 awsip=`hostname -I | awk '{print $1}'`
 
-sed -i "s/$awsip/& $pubhost/" hosts
+sed -i "s/$awsip/& $pubhost/" /etc/hosts
 
 systemctl start httpd24-httpd
 systemctl enable httpd24-httpd
