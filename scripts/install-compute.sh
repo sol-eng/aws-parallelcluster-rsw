@@ -17,7 +17,7 @@ useradd -s /bin/bash -m --system --gid rstudio --uid 1001 rstudio
 
 echo -e "rstudio\nrstudio" | passwd rstudio
 
-apt-get install -y libzmq5  libglpk40 libnode-dev
+apt-get install -y libzmq3-dev  libglpk40 libnode-dev
 
 #mount various FS
 grep slurm /etc/fstab | sed 's#/opt/slurm#/usr/lib/rstudio-server#g' | sudo tee -a /etc/fstab
