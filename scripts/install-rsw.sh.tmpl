@@ -42,7 +42,7 @@ setfacl -R --set-file=/tmp/acl /scratch/renv
 # Install RSWB
 groupadd --system --gid 900 rstudio-server
 useradd -s /bin/bash -m --system --gid rstudio-server --uid 900 rstudio-server
-RSWB_VER=2022.07.0-548.pro5
+RSWB_VER=2022.07.0-554.pro3
 curl -O https://download2.rstudio.org/server/bionic/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb
 gdebi -n rstudio-workbench-${RSWB_VER}-amd64.deb
 rm -f rstudio-workbench-${RSWB_VER}.pro6-amd64.deb
@@ -62,6 +62,48 @@ groupadd --system --gid 1001 rstudio
 useradd -s /bin/bash -m --system --gid rstudio --uid 1001 rstudio
 
 echo -e "rstudio\nrstudio" | passwd rstudio
+
+cat <<EOF > /home/rstudio/.Rprofile
+#set SLURM binaries PATH so that RSW Launcher jobs work
+slurm_bin_path<-"/opt/slurm/bin"
+
+curr_path<-strsplit(Sys.getenv("PATH"),":")[[1]]
+
+if (!(slurm_bin_path %in% curr_path)) {
+  if (length(curr_path) == 0) {
+     Sys.setenv(PATH = slurm_bin_path)
+  } else {
+     Sys.setenv(PATH = paste0(Sys.getenv("PATH"),":",slurm_bin_path))
+}
+
+}
+
+options(
+    clustermq.scheduler = "slurm",
+    clustermq.template = "~/slurm.tmpl" 
+)
+EOF
+
+cat << EOF > /home/rstudio/slurm.tmpl
+#!/bin/bash -l
+
+# File: slurm.tmpl
+# Template for using clustermq against a SLURM backend
+
+#SBATCH --job-name={{ job_name }}
+#SBATCH --error={{ log_file | /dev/null }}
+#SBATCH --mem-per-cpu={{ memory | 1024 }}
+#SBATCH --array=1-{{ n_jobs }}
+#SBATCH --cpus-per-task={{ cores | 1 }}
+
+
+export OMP_NUM_THREADS={{ cores | 1 }}
+#ulimit -v $(( 1024 * {{ memory | 1024 }} ))
+CMQ_AUTH={{ auth }} ${R_HOME}/bin/R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'
+EOF
+
+chown rstudio:rstudio /home/rstudio/{.Rprofile,slurm.tmpl}
+
 
 # Add SLURM integration 
 myip=`curl http://checkip.amazonaws.com`
@@ -184,7 +226,7 @@ apt remove -y r-base-core
 
 
 #Install apptainer
-export APPTAINER_VER=1.0.2
+export APPTAINER_VER=1.0.3
 wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/apptainer_${APPTAINER_VER}_amd64.deb && \
 	dpkg -i apptainer_${APPTAINER_VER}_amd64.deb && \
 	rm -f apptainer_${APPTAINER_VER}_amd64.deb*
@@ -197,7 +239,7 @@ exportfs -ar
 aws s3 cp s3://S3_BUCKETNAME/run.R /tmp
 aws s3 cp s3://S3_BUCKETNAME/r-session.bionic.sdef /tmp
 aws s3 cp s3://S3_BUCKETNAME/r-session.centos7.sdef /tmp
-
+aws s3 cp s3://S3_BUCHETNAME/build-container.sh /tmp 
 aws s3 cp s3://S3_BUCKETNAME/spank.tgz /tmp
 
 cd /tmp
