@@ -2,9 +2,9 @@
 
 CLUSTERNAME="demo2"
 S3_BUCKETNAME="hpc-scripts1234"
-SECURITYGROUP_RSW="sg-0d432b9a4aeea0dd6"
-SUBNETID="subnet-9bbd91c1"
-REGION="eu-west-1"
+SECURITYGROUP_RSW="sg-0ebc93e160de95498"
+SUBNETID="subnet-05b2495f54b720cd4"
+REGION="us-east-2"
 KEY="michael"
 CERT="/Users/michael/projects/aws/certs/michael.pem"
 
