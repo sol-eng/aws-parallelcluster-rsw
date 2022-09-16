@@ -34,6 +34,20 @@ sudo rstudio-server restart
 ```
 and repeat the same for `rstudio-launcher` as well. 
 
+### exporting `/usr/lib/rstudio-server` to the compute nodes
+
+HPC users need to install the RSW package on the RSW server but in addition they will also install the RSW session components on each compute node. 
+
+For the majority of files the session components tar-ball is identical with the content of `/usr/lib/rstudio-server` provided by the RSW package, it actually is a subset of it. 
+
+So exporting `/usr/lib/rstudio-server` will simplify compute node setup and also ensure automatic update of the session components if the RSW installation on the RSW Server is being updated. 
+
+In scenarios where the RSW server uses a different linux distro or different major version of a linux distro one still does not need to separately install the session components. As `/usr/lib/rstudio-server` is part of any RSW installation the admin also can just extract the contents from the DEB or RPM package. 
+
+For RPM packages this looks like `rpm2cpio rstudio-server.rpm | cpio -idv` while for DEB packages this is achieved via `dpkg-deb -xv rstudio-server.deb . ` where in both cases the packge content would be extracted into the current working directory. The extracted content again can be exported via NFS to the appropriate compute nodes. 
+
+Lastly, in scenarios, where exporting `/usr/lib/rstudio-server` from the RSW server is not desirable/allowed, the same content also can be copied to a shared NAS and mounted from there. 
+
 ### shared storage
 
 As the name already mentions, this is a [shared storage path](https://docs.rstudio.com/ide/server-pro/r_sessions/project_sharing.html#shared-storage) where session information, the r-versions file etc... are stored. Such a storage path also must be defined when project sharing needs to work. This folder must be readable and writable by everyone and have the sticky bit set. For project sharing to work it also needs to support extended POSIX ACL's for [NFS v3](https://docs.rstudio.com/ide/server-pro/r_sessions/project_sharing.html#shared-storage) or [NFS v4](https://docs.rstudio.com/ide/server-pro/r_sessions/project_sharing.html#nfsv4) (which explicitly excludes the usage of Amazon EFS)
