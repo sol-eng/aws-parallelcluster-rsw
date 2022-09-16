@@ -48,6 +48,8 @@ For RPM packages this looks like `rpm2cpio rstudio-server.rpm | cpio -idv` while
 
 Lastly, in scenarios, where exporting `/usr/lib/rstudio-server` from the RSW server is not desirable/allowed, the same content also can be copied to a shared NAS and mounted from there. 
 
+In any case, the need to provide the OS dependencies for the session components still remains the same. 
+
 ### shared storage
 
 As the name already mentions, this is a [shared storage path](https://docs.rstudio.com/ide/server-pro/r_sessions/project_sharing.html#shared-storage) where session information, the r-versions file etc... are stored. Such a storage path also must be defined when project sharing needs to work. This folder must be readable and writable by everyone and have the sticky bit set. For project sharing to work it also needs to support extended POSIX ACL's for [NFS v3](https://docs.rstudio.com/ide/server-pro/r_sessions/project_sharing.html#shared-storage) or [NFS v4](https://docs.rstudio.com/ide/server-pro/r_sessions/project_sharing.html#nfsv4) (which explicitly excludes the usage of Amazon EFS)
