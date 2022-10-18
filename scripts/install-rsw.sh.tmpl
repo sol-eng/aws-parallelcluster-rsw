@@ -63,7 +63,7 @@ useradd -s /bin/bash -m --system --gid rstudio --uid 1001 rstudio
 
 echo -e "rstudio\nrstudio" | passwd rstudio
 
-cat <<EOF > /home/rstudio/.Rprofile
+cat  > /home/rstudio/.Rprofile << EOF
 #set SLURM binaries PATH so that RSW Launcher jobs work
 slurm_bin_path<-"/opt/slurm/bin"
 
@@ -84,7 +84,7 @@ options(
 )
 EOF
 
-cat << EOF > /home/rstudio/slurm.tmpl
+cat > /home/rstudio/slurm.tmpl << EOF
 #!/bin/bash -l
 
 # File: slurm.tmpl
@@ -98,7 +98,6 @@ cat << EOF > /home/rstudio/slurm.tmpl
 
 
 export OMP_NUM_THREADS={{ cores | 1 }}
-#ulimit -v $(( 1024 * {{ memory | 1024 }} ))
 CMQ_AUTH={{ auth }} ${R_HOME}/bin/R --no-save --no-restore -e 'clustermq:::worker("{{ master }}")'
 EOF
 
