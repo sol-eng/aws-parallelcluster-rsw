@@ -67,6 +67,13 @@ server-shared-storage-path=/opt/rstudio/shared-storage
 ```
 into `rserver.conf`. 
 
+In addition and in order to specifically share the `r-versions` [JSON file created by RSW](https://docs.posit.co/ide/server-pro/r_versions/using_multiple_versions_of_r.html#version-scan-report) we furthermore define in `rserver.conf`
+
+```
+r-versions-path=/opt/rstudio/shared-storage/r-versions
+```
+
+
 # R installation 
 
 ## General Summary

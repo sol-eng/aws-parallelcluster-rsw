@@ -39,7 +39,7 @@ apt-get install -y `cat /opt/R/$/.depends | sed 's#,##g'`
 rm -rf /etc/profile.d/modules.sh
 
 #remove default R version (too old)
-apt remove -y r-base-core
+apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
 
 #Install apptainer
 export APPTAINER_VER=1.0.2

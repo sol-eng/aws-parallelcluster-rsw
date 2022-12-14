@@ -125,6 +125,9 @@ launcher-sessions-callback-address=http://${myip}:8787
 
 # Disable R Versions scanning
 r-versions-scan=0
+
+# Location of r-versions JSON file 
+r-versions-path=/opt/rstudio/shared-storage/r-versions
 EOF
 
 cat > /tmp/rstudio/launcher.conf<<EOF
@@ -198,6 +201,9 @@ EOF
 cp /tmp/rstudio/* /opt/rstudio/etc/rstudio
 rm -rf /tmp/rstudio
 
+#remove default R version (too old)
+apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
+
 systemctl daemon-reload
 rstudio-server restart
 rstudio-launcher restart
@@ -223,8 +229,6 @@ mount -a
 
 rm -rf /etc/profile.d/modules.sh
 
-#remove default R version (too old)
-apt remove -y r-base-core
 
 
 #Install apptainer
