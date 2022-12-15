@@ -42,11 +42,15 @@ rm -rf /etc/profile.d/modules.sh
 apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
 
 #Install apptainer
-export APPTAINER_VER=1.0.2
-wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/apptainer_${APPTAINER_VER}_amd64.deb && \
-        dpkg -i apptainer_${APPTAINER_VER}_amd64.deb && \
-        rm -f apptainer_${APPTAINER_VER}_amd64.deb*
-
+export APPTAINER_VER=1.1.4
+apt-get update -y 
+apt-get install -y gdebi-core
+for name in apptainer apptainer-suid
+do
+   wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/${name}_${APPTAINER_VER}_amd64.deb && \
+        gdebi -n ${name}_${APPTAINER_VER}_amd64.deb && \
+        rm -f ${name}_${APPTAINER_VER}_amd64.deb*
+done
 
 #Update CUDA and add cuDNN
 if ( lspci | grep NVIDIA ); then 

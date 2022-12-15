@@ -232,10 +232,15 @@ rm -rf /etc/profile.d/modules.sh
 
 
 #Install apptainer
-export APPTAINER_VER=1.0.3
-wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/apptainer_${APPTAINER_VER}_amd64.deb && \
-	dpkg -i apptainer_${APPTAINER_VER}_amd64.deb && \
-	rm -f apptainer_${APPTAINER_VER}_amd64.deb*
+export APPTAINER_VER=1.1.4
+apt-get update -y 
+apt-get install -y gdebi-core
+for name in apptainer apptainer-suid
+do
+   wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/${name}_${APPTAINER_VER}_amd64.deb && \
+	gdebi -n ${name}_${APPTAINER_VER}_amd64.deb && \
+	rm -f ${name}_${APPTAINER_VER}_amd64.deb*
+done
 
 #Configure container folder and export to nodes
 mkdir -p /opt/apptainer/containers
