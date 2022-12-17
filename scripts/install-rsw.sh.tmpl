@@ -20,7 +20,11 @@ do
 	export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
   fi
   /opt/R/$R_VERSION/bin/R CMD javareconf 
-  /opt/R/$R_VERSION/bin/Rscript /tmp/run.R
+done
+
+for R_VERSION in "$@"
+do
+  /opt/R/$R_VERSION/bin/Rscript /tmp/run.R &
 done
 
 # prepare renv package cache 
@@ -42,10 +46,10 @@ setfacl -R --set-file=/tmp/acl /scratch/renv
 # Install RSWB
 groupadd --system --gid 900 rstudio-server
 useradd -s /bin/bash -m --system --gid rstudio-server --uid 900 rstudio-server
-RSWB_VER=2022.07.1-554.pro3
+RSWB_VER=2022.07.2-576.pro12
 curl -O https://download2.rstudio.org/server/bionic/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb
 gdebi -n rstudio-workbench-${RSWB_VER}-amd64.deb
-rm -f rstudio-workbench-${RSWB_VER}.pro6-amd64.deb
+rm -f rstudio-workbench-${RSWB_VER}-amd64.deb
 
 for i in server launcher 
 do 
@@ -124,7 +128,7 @@ launcher-default-cluster=Slurm
 launcher-sessions-callback-address=http://${myip}:8787
 
 # Disable R Versions scanning
-r-versions-scan=0
+#r-versions-scan=0
 
 # Location of r-versions JSON file 
 r-versions-path=/opt/rstudio/shared-storage/r-versions
@@ -144,9 +148,9 @@ enable-debug-logging=1
 name=Slurm
 type=Slurm
 
-[cluster]
-name=Local
-type=Local
+#[cluster]
+#name=Local
+#type=Local
 
 EOF
 
@@ -205,8 +209,13 @@ rm -rf /tmp/rstudio
 apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
 
 systemctl daemon-reload
+rstudio-server stop
+rstudio-launcher stop
+
+rstudio-launcher start
+rstudio-server start
+
 rstudio-server restart
-rstudio-launcher restart
 
 #little hack to get the memory allocation working
 
@@ -260,8 +269,12 @@ make && make install
 popd
 rm -f spank.tgz
 
-#( cd /tmp
-#for i in *.sdef
-#do
-#/usr/bin/apptainer build /opt/apptainer/containers/${i/sdef/simg} $i
-#done ) & 
+cd /tmp
+for i in *.sdef
+do
+   nohup /usr/bin/apptainer build --disable-cache /opt/apptainer/containers/${i/sdef/simg} $i >& ${i/sdef/log} &
+done
+
+wait
+
+exit 0 
