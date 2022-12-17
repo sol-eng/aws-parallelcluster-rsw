@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:centos7-2022.07.1-554.pro3 
+From: rstudio/r-session-complete:centos7-2022.07.2-576.pro12 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -7,7 +7,7 @@ From: rstudio/r-session-complete:centos7-2022.07.1-554.pro3
     run.R /
 
 %post
-    export SLURM_VERSION=21.08.8-2
+    export SLURM_VERSION=22.05.5-1
     # Install Java JDK (optional) 
     yum -y install java-11-openjdk-devel 
 
@@ -67,15 +67,16 @@ EOF
     useradd -u 401 -g 401 slurm  
     yum -y install munge-devel
 
-    mkdir /tmp/build && \
-	cd /tmp/build && \
-	wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 && \
-	tar xvfj slurm-${SLURM_VERSION}.tar.bz2 && \
-	cd slurm-${SLURM_VERSION} && \
+    tmpdir=`mktemp -d` && \
+	cd $tmpdir && \
+	bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git" && \
+	cd slurm && \
 	./configure --prefix /usr/local/slurm && \
 	make -j 4 && make install && \
 	cd / && \
-	rm -rf /tmp/build
+	rm -rf $tmpdir
+
+    echo "export SLURM_CONF=/opt/slurm/etc/slurm.conf" > /etc/profile.d/slurm.sh
 
     # Install zeromq as prereq for clustermq (optional) 
     yum -y install zeromq
