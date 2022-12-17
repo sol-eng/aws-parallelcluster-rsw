@@ -24,7 +24,7 @@ done
 
 for R_VERSION in "$@"
 do
-  /opt/R/$R_VERSION/bin/Rscript /tmp/run.R &
+  /opt/R/$R_VERSION/bin/Rscript /tmp/run.R >& /var/log/r-packages-install-$R_VERSION.log &
 done
 
 # prepare renv package cache 
@@ -51,15 +51,40 @@ curl -O https://s3.amazonaws.com/rstudio-ide-build/server/bionic/amd64/rstudio-w
 gdebi -n rstudio-workbench-${RSWB_VER}-amd64.deb
 rm -f rstudio-workbench-${RSWB_VER}-amd64.deb
 
+configdir="/opt/rstudio/etc/rstudio"
 for i in server launcher 
 do 
 mkdir -p /etc/systemd/system/rstudio-$i.service.d
 mkdir -p /opt/rstudio/etc/rstudio
 cat <<EOF > /etc/systemd/system/rstudio-$i.service.d/override.conf
 [Service]
-Environment="RSTUDIO_CONFIG_DIR=/opt/rstudio/etc/rstudio"
+Environment="RSTUDIO_CONFIG_DIR=$configdir"
 EOF
 done
+
+# Install launcher keys
+apt-get update && apt-get install -y uuid && \
+    apt clean all && \
+    rm -rf /var/cache/apt
+
+
+echo `uuid` > $configdir/secure-cookie-key && \
+    chown rstudio-server:rstudio-server \
+            $configdir/secure-cookie-key && \
+    chmod 0600 $configdir/secure-cookie-key
+
+openssl genpkey -algorithm RSA \
+            -out $configdir/launcher.pem \
+            -pkeyopt rsa_keygen_bits:2048 && \
+    chown rstudio-server:rstudio-server \
+            $configdir/launcher.pem && \
+    chmod 0600 $configdir/launcher.pem
+
+openssl rsa -in $configdir/launcher.pem \
+            -pubout > $configdir/launcher.pub && \
+    chown rstudio-server:rstudio-server \
+            $configdir/launcher.pub
+
 
 # Add sample user 
 groupadd --system --gid 1001 rstudio
@@ -255,7 +280,7 @@ rm -f spank.tgz
 cd /tmp
 for i in *.sdef
 do
-   nohup /usr/bin/apptainer build --disable-cache /opt/apptainer/containers/${i/sdef/simg} $i >& ${i/sdef/log} &
+   nohup /usr/bin/apptainer build --disable-cache /opt/apptainer/containers/${i/sdef/simg} $i >& /var/log/apptainer-build-${i/sdef/log} &
 done
 
 wait
