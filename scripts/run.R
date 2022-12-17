@@ -26,7 +26,7 @@ if(file.exists("/etc/redhat-release")) {
 }
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
-
+paste("version",currver)
 libdir <- paste0("/opt/rstudio/rver/",currver)
 
 pmurl <- "https://packagemanager.rstudio.com"
@@ -35,17 +35,15 @@ if(dir.exists(libdir)) {unlink(libdir,recursive=TRUE)}
 dir.create(libdir,recursive=TRUE)
 .libPaths(libdir)
 
-if(dir.exists("/tmp/curl")) {unlink("/tmp/curl",recursive=TRUE)}
-dir.create("/tmp/curl")
-install.packages("RCurl","/tmp/curl", repos="stat.ethz.ch/CRAN")
-library(RCurl,lib.loc="/tmp/curl")
+curldir<-paste0(system("mktemp -d",intern=TRUE),"/curl/",currver)
+if(dir.exists(curldir)) {unlink(curldir,recursive=TRUE)}
+dir.create(curldir,recursive=TRUE)
+install.packages("RCurl",curldir, repos="https://packagemanager.rstudio.com/cran/latest")
+library(RCurl,lib.loc=curldir)
 
 
 pnames=c("DBI", "R6", "RJDBC", "RODBC", "RSQLite", "Rcpp", "base64enc", "checkmate", "crayon", "commonmark", "curl", "devtools", "digest", "evaluate", "ellipsis", "fastmap", "glue", "haven", "highr", "htmltools", "htmlwidgets", "httpuv", "jsonlite", "keyring", "knitr", "later", "learnr", "lifecycle", "magrittr", "markdown", "mime", "miniUI", "mongolite", "odbc", "openssl", "packrat", "plumber", "png", "profvis", "promises", "r2d3", "ragg", "rappdirs", "rJava", "readr", "readxl", "renv", "reticulate", "rlang", "rmarkdown", "roxygen2", "rprojroot", "rsconnect", "rstan", "rstudioapi", "shiny", "shinytest", "sourcetools", "stringi", "stringr", "testthat", "tinytex", "withr", "xfun", "xml2", "xtable", "yaml")
 
-
-currver <- paste0(R.Version()$major,".",R.Version()$minor)
-paste("version",currver)
 
 #Start with a starting date for the time-based snapshot 60 days past the R release
 releasedate <- as.Date(paste0(R.version$year,"-",R.version$month,"-",R.version$day))+60
@@ -92,10 +90,11 @@ sink()
 options(BioC_mirror = "https://packagemanager.rstudio.com/bioconductor")
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
-if(dir.exists("/tmp/bioc")) {unlink("/tmp/bioc",recursive=TRUE)}
-dir.create("/tmp/bioc")
-install.packages("BiocManager","/tmp/bioc", repos="stat.ethz.ch/CRAN")
-library(BiocManager,lib.loc="/tmp/bioc",quietly=TRUE,verbose=FALSE)
+biocdir<-paste0(system("mktemp -d",intern=TRUE),"/bioc/",currver)
+if(dir.exists(biocdir)) {unlink(biocdir,recursive=TRUE)}
+dir.create(biocdir,recursive=TRUE)
+install.packages("BiocManager",biocdir, repos="https://packagemanager.rstudio.com/cran/latest")
+library(BiocManager,lib.loc=biocdir,quietly=TRUE,verbose=FALSE)
 
 # Version of BioConductor as given by BiocManager (can also be manually set)
 biocvers <- BiocManager::version()
@@ -155,4 +154,3 @@ cat('attach(.env)\n')
 cat('})\n')
 }
 sink()
-
