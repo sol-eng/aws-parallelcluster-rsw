@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CLUSTERNAME="demo66"
+CLUSTERNAME="demo69"
 S3_BUCKETNAME="hpc-scripts1234"
 SECURITYGROUP_RSW="sg-0838ae772a776ab8e"
 SUBNETID="subnet-cd7e8c86"
@@ -9,7 +9,7 @@ KEY="michael"
 
 # Posit Workbench Version
 PWB_VER=2022.07.2-576.pro12
-#PWB_VER=2022.12.0-354.pro1
+PWB_VER=2022.12.0-354.pro1
 
 # SLURM Version - use only "-" to resemble git tag version
 SLURM_VER=22-05-5-1
@@ -24,7 +24,11 @@ cat scripts/install-rsw.sh | sed "s/PWB_VER/$PWB_VER/" | sed "s#S3_BUCKETNAME#${
 
 for i in scripts/*.sdef      
 do
-cat $i | sed "s/PWB_VER/$PWB_VER/" | sed "s/SLURM_VER/$SLURM_VER/"> ${i/scripts/tmp/}
+   if [[ $PWB_VER =~ "2022.12" ]]; then
+      cat $i | sed "s/PWB_VER/$PWB_VER/" | sed "s/SLURM_VER/$SLURM_VER/" | sed "s#r-session-complete:#r-session-complete-preview:dev-#" > ${i/scripts/tmp/}
+   else 
+      cat $i | sed "s/PWB_VER/$PWB_VER/" | sed "s/SLURM_VER/$SLURM_VER/"> ${i/scripts/tmp/}
+   fi
 done
 
 aws s3 cp tmp/ s3://${S3_BUCKETNAME} --recursive 

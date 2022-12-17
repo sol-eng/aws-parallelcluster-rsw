@@ -196,20 +196,11 @@ slurm-service-user=slurm
 slurm-bin-path=/opt/slurm/bin
 
 # Singularity specifics
-#constraints=Container=singularity-container
+constraints=Container=singularity-container
 
 EOF
 
-# Install VSCode based on the PWB version. 
-RUN /bin/bash -c "if ( rstudio-server | grep configure-vs-code ); then rstudio-server configure-vs-code ; rstudio-server install-vs-code-ext; else rstudio-server install-vs-code /opt/code-server/; fi"
-
-cat > /tmp/rstudio/vscode.conf << EOF
-exe=/opt/rstudio/vscode/bin/code-server
-enabled=1
-default-session-cluster=Slurm
-EOF
-
-cp /tmp/rstudio/* /opt/rstudio/etc/rstudio
+cp /tmp/rstudio/* $configdir 
 rm -rf /tmp/rstudio
 
 #remove default R version (too old)
@@ -223,6 +214,17 @@ rstudio-launcher start
 rstudio-server start
 
 rstudio-server restart
+
+# Install VSCode based on the PWB version.
+if ( rstudio-server | grep configure-vs-code ); then rstudio-server configure-vs-code ; rstudio-server install-vs-code-ext; else rstudio-server install-vs-code /opt/rstudio/vscode/; fi
+  
+if [ -f /etc/rstudio/vscode.conf ]; then
+   cp /etc/rstudio/vscode.conf $configdir
+fi
+
+if [ -f /etc/rstudio/vscode-user-settings.json ]; then 
+   cp /etc/rstudio/vscode-user-settings.json $configdir
+fi
 
 #little hack to get the memory allocation working
 
