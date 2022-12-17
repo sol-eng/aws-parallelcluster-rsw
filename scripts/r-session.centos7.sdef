@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: rstudio/r-session-complete:centos7-2022.07.2-576.pro12 
+From: rstudio/r-session-complete:centos7-PWB_VER 
 
 # needed if you want to set up CRAN and BioConductor repos from RSPM (optional)
 # set binaryflag to "" in order to stick to source RPMs
@@ -7,7 +7,6 @@ From: rstudio/r-session-complete:centos7-2022.07.2-576.pro12
     run.R /
 
 %post
-    export SLURM_VERSION=22.05.5-1
     # Install Java JDK (optional) 
     yum -y install java-11-openjdk-devel 
 
@@ -69,7 +68,7 @@ EOF
 
     tmpdir=`mktemp -d` && \
 	cd $tmpdir && \
-	bash -c "git clone --depth 1 -b slurm-\${SLURM_VERSION//./-} https://github.com/SchedMD/slurm.git" && \
+	bash -c "git clone --depth 1 -b slurm-SLURM_VER https://github.com/SchedMD/slurm.git" && \
 	cd slurm && \
 	./configure --prefix /usr/local/slurm && \
 	make -j 4 && make install && \

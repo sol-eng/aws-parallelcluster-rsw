@@ -23,10 +23,11 @@ apt-get install -y libzmq3-dev  libglpk40 libnode-dev
 grep slurm /etc/fstab | sed 's#/opt/slurm#/usr/lib/rstudio-server#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/R#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/rstudio#g' | sudo tee -a /etc/fstab
+grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/code-server#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/scratch#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/apptainer#g' | sudo tee -a /etc/fstab
 
-mkdir -p /usr/lib/rstudio-server /opt/{R,rstudio,apptainer} /scratch
+mkdir -p /usr/lib/rstudio-server /opt/{R,rstudio,code-server,apptainer} /scratch
 
 mount -a
 

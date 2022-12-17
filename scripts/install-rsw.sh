@@ -46,8 +46,8 @@ setfacl -R --set-file=/tmp/acl /scratch/renv
 # Install RSWB
 groupadd --system --gid 900 rstudio-server
 useradd -s /bin/bash -m --system --gid rstudio-server --uid 900 rstudio-server
-RSWB_VER=2022.07.2-576.pro12
-curl -O https://download2.rstudio.org/server/bionic/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb
+RSWB_VER=PWB_VER
+curl -O https://s3.amazonaws.com/rstudio-ide-build/server/bionic/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb 
 gdebi -n rstudio-workbench-${RSWB_VER}-amd64.deb
 rm -f rstudio-workbench-${RSWB_VER}-amd64.deb
 
@@ -175,26 +175,8 @@ slurm-bin-path=/opt/slurm/bin
 
 EOF
 
-# Install VSCode
-if [ ! -d /opt/rstudio/vscode ]; then
-  # create directory to house code-server
-  mkdir -p /opt/rstudio/vscode
-  pushd /opt/rstudio/vscode
-
-  # download the code server package
-  wget https://rstd.io/vs-code-server-3-9-3 -O vs-code-server.tar.gz
-
-  # extract code-server binary
-  tar zxf vs-code-server.tar.gz --strip 1
-
-  # remove the archive
-  rm vs-code-server.tar.gz
-  popd
-  /opt/rstudio/vscode/bin/code-server --extensions-dir /opt/rstudio/vscode/extensions --install-extension ms-python.python
-  curl -L https://rstd.io/vs-code-r-ext -o /tmp/Ikuyadeu.r-1.1.0.vsix.gz && gunzip /tmp/Ikuyadeu.r-1.1.0.vsix.gz
-  /opt/rstudio/vscode/bin/code-server --extensions-dir /opt/rstudio/vscode/extensions --install-extension /tmp/Ikuyadeu.r-1.1.0.vsix
-  rm -f /tmp/Ikuyadeu.r-1.1.0.vsix 
-fi 
+# Install VSCode based on the PWB version. 
+RUN /bin/bash -c "if ( rstudio-server | grep configure-vs-code ); then rstudio-server configure-vs-code ; rstudio-server install-vs-code-ext; else rstudio-server install-vs-code /opt/code-server/; fi"
 
 cat > /tmp/rstudio/vscode.conf << EOF
 exe=/opt/rstudio/vscode/bin/code-server
@@ -229,6 +211,7 @@ apt-get install -y libzmq5  libglpk40 libnode-dev
 
 grep slurm /etc/exports | sed 's/slurm/R/' | sudo tee -a /etc/exports 
 grep slurm /etc/exports | sed 's/slurm/rstudio/' | sudo tee -a /etc/exports      
+grep slurm /etc/exports | sed 's/slurm/code-server/' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's#/opt/slurm#/usr/lib/rstudio-server#' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's#/opt/slurm#/scratch#' | sudo tee -a /etc/exports
 
