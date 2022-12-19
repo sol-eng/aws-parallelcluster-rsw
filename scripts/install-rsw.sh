@@ -265,19 +265,21 @@ rstudio-server restart
 # Install VSCode based on the PWB version.
 if ( rstudio-server | grep configure-vs-code ); then rstudio-server configure-vs-code ; rstudio-server install-vs-code-ext; else rstudio-server install-vs-code /opt/rstudio/vscode/; fi
   
-if [ -f /etc/rstudio/vscode.conf ]; then
-   cp /etc/rstudio/vscode.conf $configdir
-fi
-
+cat > $configdir/vscode.conf << EOF
+enabled=1
+exe=/usr/lib/rstudio-server/bin/code-server/bin/code-server
+args=--verbose --host=0.0.0.0 --extensions-dir=/opt/rstudio/code-server 
+EOF 
 if [ -f /etc/rstudio/vscode-user-settings.json ]; then 
    cp /etc/rstudio/vscode-user-settings.json $configdir
 fi
 
-cat > $onfigdir/vscode.extensions.conf << EOF
-quarto.quarto
-Ikuyadeu.r@2.4.0
-ms-python.python@2022.10.1
-EOF
+for extension in quarto.quarto REditorSupport.r@2.6.1 ms-python.python@2022.10.1 
+do
+   /usr/lib/rstudio-server/bin/code-server/bin/code-server --extensions-dir=/opt/rstudio/code-server --install-extension $extension
+done
+
+rm -f /etc/rstudio
 
 #little hack to get the memory allocation working
 
