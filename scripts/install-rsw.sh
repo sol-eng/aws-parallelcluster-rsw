@@ -27,6 +27,51 @@ do
   /opt/R/$R_VERSION/bin/Rscript /tmp/run.R >& /var/log/r-packages-install-$R_VERSION.log &
 done
 
+
+### Install Python  -------------------------------------------------------------#
+
+PYTHON_VERSION=3.8.10
+curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION}_1_amd64.deb && \
+    apt-get update && gdebi -n python-${PYTHON_VERSION}_1_amd64.deb && \
+    dpkg --info python-${PYTHON_VERSION}_1_amd64.deb | grep " Depends" | cut -d ":" -f 2 > /opt/python/$PYTHON_VERSION/.depends
+    apt clean all && rm -rf /var/cache/apt && rm -f python-${PYTHON_VERSION}_1_amd64.deb
+
+/opt/python/${PYTHON_VERSION}/bin/pip install \
+    jupyter \
+    jupyterlab \
+    workbench_jupyterlab \
+    rsp_jupyter \
+    rsconnect_jupyter \
+    rsconnect_python && \
+/opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
+    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
+    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
+    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
+    /opt/python/${PYTHON_VERSION}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter &
+
+
+PYTHON_VERSION_ALT=3.9.5
+curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION_ALT}_1_amd64.deb && \
+    apt-get update && gdebi -n python-${PYTHON_VERSION_ALT}_1_amd64.deb && \
+    dpkg --info python-${PYTHON_VERSION_ALT}_1_amd64.deb | grep " Depends" | cut -d ":" -f 2 > /opt/python/$PYTHON_VERSION_ALT/.depends
+    apt clean all && rm -rf /var/cache/apt && rm -f python-${PYTHON_VERSION_ALT}_1_amd64.deb
+
+/opt/python/${PYTHON_VERSION_ALT}/bin/pip install \
+    jupyter \
+    jupyterlab \
+    workbench_jupyterlab \
+    rsp_jupyter \
+    rsconnect_jupyter \
+    rsconnect_pythoni && \
+/opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
+    /opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
+    /opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
+    /opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
+    /opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter &
+
+
+
+
 # prepare renv package cache 
 sudo mkdir -p /scratch/renv
 cat << EOF > /tmp/acl
@@ -136,12 +181,11 @@ chown rstudio:rstudio /home/rstudio/{.Rprofile,slurm.tmpl}
 # Add SLURM integration 
 myip=`curl http://checkip.amazonaws.com`
 
-mkdir -p /tmp/rstudio
 mkdir -p /opt/rstudio/shared-storage
 
-echo "RSTUDIO_DISABLE_PACKAGE_INSTALL_PROMPT=yes" > /etc/rstudio/launcher-env
+echo "RSTUDIO_DISABLE_PACKAGE_INSTALL_PROMPT=yes" > $configdir/launcher-env
 
-cat > /tmp/rstudio/rserver.conf << EOF
+cat > $configdir/rserver.conf << EOF
 # Shared storage
 server-shared-storage-path=/opt/rstudio/shared-storage
 
@@ -159,7 +203,7 @@ launcher-sessions-callback-address=http://${myip}:8787
 r-versions-path=/opt/rstudio/shared-storage/r-versions
 EOF
 
-cat > /tmp/rstudio/launcher.conf<<EOF
+cat > $configdir/launcher.conf<<EOF
 [server]
 address=127.0.0.1
 port=5559
@@ -179,7 +223,7 @@ type=Slurm
 
 EOF
 
-cat > /tmp/rstudio/launcher.slurm.profiles.conf<<EOF 
+cat > $configdir/launcher.slurm.profiles.conf<<EOF 
 [*]
 default-cpus=1
 default-mem-mb=512
@@ -187,7 +231,7 @@ max-cpus=2
 max-mem-mb=1024
 EOF
 
-cat > /tmp/rstudio/launcher.slurm.conf << EOF 
+cat > $configdir/launcher.slurm.conf << EOF 
 # Enable debugging
 enable-debug-logging=1
 
@@ -200,8 +244,11 @@ constraints=Container=singularity-container
 
 EOF
 
-cp /tmp/rstudio/* $configdir 
-rm -rf /tmp/rstudio
+cat > $configdir/jupyter.conf << EOF
+jupyter-exe=/opt/python/$PYTHON_VERSION/bin/jupyter
+notebooks-enabled=1
+labs-enabled=1
+EOF
 
 #remove default R version (too old)
 apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
@@ -226,6 +273,12 @@ if [ -f /etc/rstudio/vscode-user-settings.json ]; then
    cp /etc/rstudio/vscode-user-settings.json $configdir
 fi
 
+cat > $onfigdir/vscode.extensions.conf << EOF
+quarto.quarto
+Ikuyadeu.r@2.4.0
+ms-python.python@2022.10.1
+EOF
+
 #little hack to get the memory allocation working
 
 sed -i '/^include.*/i NodeName=DEFAULT RealMemory=3928' /opt/slurm/etc/slurm.conf
@@ -237,6 +290,7 @@ systemctl restart slurmctld
 apt-get install -y libzmq5  libglpk40 libnode-dev
 
 grep slurm /etc/exports | sed 's/slurm/R/' | sudo tee -a /etc/exports 
+grep slurm /etc/exports | sed 's/slurm/python/' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's/slurm/rstudio/' | sudo tee -a /etc/exports      
 grep slurm /etc/exports | sed 's/slurm/code-server/' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's#/opt/slurm#/usr/lib/rstudio-server#' | sudo tee -a /etc/exports

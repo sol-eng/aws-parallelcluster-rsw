@@ -22,6 +22,7 @@ apt-get install -y libzmq3-dev  libglpk40 libnode-dev
 #mount various FS
 grep slurm /etc/fstab | sed 's#/opt/slurm#/usr/lib/rstudio-server#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/R#g' | sudo tee -a /etc/fstab
+grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/python#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/rstudio#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/code-server#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/scratch#g' | sudo tee -a /etc/fstab
@@ -35,7 +36,10 @@ mount -a
 apt-get install -y rrdtool psmisc libapparmor1 libedit2 sudo lsb-release  libclang-dev libsqlite3-0 libpq5  libc6
 
 #Install R dependencies
-apt-get install -y `cat /opt/R/$/.depends | sed 's#,##g'`
+apt-get install -y `cat /opt/R/*/.depends | sed 's#,##g'`
+
+#Install Python dependencies 
+apt-get install -y `cat /opt/python/*/.depends | sed 's#,##g'`
 
 rm -rf /etc/profile.d/modules.sh
 
