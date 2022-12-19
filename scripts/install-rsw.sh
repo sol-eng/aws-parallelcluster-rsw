@@ -274,7 +274,10 @@ if [ -f /etc/rstudio/vscode-user-settings.json ]; then
    cp /etc/rstudio/vscode-user-settings.json $configdir
 fi
 
-for extension in quarto.quarto REditorSupport.r@2.6.1 ms-python.python@2022.10.1 
+for extension in quarto.quarto \
+	REditorSupport.r@2.6.1 \
+	ms-python.python@2022.10.1 \
+	/usr/lib/rstudio-server/bin/vscode-workbench-ext/rstudio-workbench.vsix  
 do
    /usr/lib/rstudio-server/bin/code-server/bin/code-server --extensions-dir=/opt/rstudio/code-server --install-extension $extension
 done
