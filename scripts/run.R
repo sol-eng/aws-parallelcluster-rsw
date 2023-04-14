@@ -27,9 +27,10 @@ if(file.exists("/etc/redhat-release")) {
 
 currver <- paste0(R.Version()$major,".",R.Version()$minor)
 paste("version",currver)
-libdir <- paste0("/opt/rstudio/rver/",currver)
 
 pmurl <- "https://packagemanager.rstudio.com"
+
+libdir <- paste0("/opt/rstudio/r-integration/",currver)
 
 if(dir.exists(libdir)) {unlink(libdir,recursive=TRUE)}
 dir.create(libdir,recursive=TRUE)
@@ -83,7 +84,8 @@ for (package in pnames) {
 
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
-  cat("RENV_PATHS_CACHE=/scratch/renv\n")
+  cat("RENV_PATHS_ROOT=/scratch/renv\n")
+  cat("RENV_PATHS_SANDBOX=/scratch/renv/sandbox\n")
 sink()
 
 # Prepare for BioConductor
@@ -145,7 +147,6 @@ for (line in names(r)) {
 }
 cat('options(repos=r)\n') 
 
-libdir <- paste0("/opt/rstudio/rver/",rverstring)
 cat(paste0('.libPaths(c(.libPaths(),"',libdir,'"))\n'))
 if ( rverstring < "4.1.0" ) {
 cat('}, envir = .env)\n')

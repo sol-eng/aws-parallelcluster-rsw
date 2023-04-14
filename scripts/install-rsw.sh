@@ -3,7 +3,7 @@
 # Install and configure R
 apt-get update -y
 apt-get install -y gdebi-core
-apt-get install -y openjdk-11-jdk openjdk-8-jdk
+apt-get install -y openjdk-11-jdk
 apt-get install -y libfreetype6-dev libpng-dev libtiff5-dev
 aws s3 cp s3://S3_BUCKETNAME/run.R /tmp
 
@@ -14,11 +14,7 @@ do
   gdebi -n r-${R_VERSION}_1_amd64.deb
   dpkg --info r-${R_VERSION}_1_amd64.deb | grep " Depends" | cut -d ":" -f 2 > /opt/R/$R_VERSION/.depends
   rm -f r-${R_VERSION}_1_amd64.deb
-  if [ ${R_VERSION:0:1} == '3' ]; then 
-	export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-  else 
-	export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
-  fi
+  export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
   /opt/R/$R_VERSION/bin/R CMD javareconf 
 done
 
@@ -183,8 +179,11 @@ myip=`curl http://checkip.amazonaws.com`
 
 mkdir -p /opt/rstudio/shared-storage
 
-echo "RSTUDIO_DISABLE_PACKAGE_INSTALL_PROMPT=yes" > $configdir/launcher-env
-
+cat > $configdir/launcher-env << EOF
+RSTUDIO_DISABLE_PACKAGE_INSTALL_PROMPT=yes
+SLURM_CONF=/opt/slurm/etc/slurm.conf
+EOF
+ 
 cat > $configdir/rserver.conf << EOF
 # Shared storage
 server-shared-storage-path=/opt/rstudio/shared-storage
@@ -201,6 +200,9 @@ launcher-sessions-callback-address=http://${myip}:8787
 
 # Location of r-versions JSON file 
 r-versions-path=/opt/rstudio/shared-storage/r-versions
+
+auth-pam-sessions-enabled=1
+auth-pam-sessions-use-password=1
 EOF
 
 cat > $configdir/launcher.conf<<EOF
@@ -223,12 +225,31 @@ type=Slurm
 
 EOF
 
-cat > $configdir/launcher.slurm.profiles.conf<<EOF 
-[*]
-default-cpus=1
-default-mem-mb=512
-max-cpus=2
-max-mem-mb=1024
+#cat > $configdir/launcher.slurm.profiles.conf<<EOF 
+#[*]
+#default-cpus=1
+#default-mem-mb=512
+##max-cpus=2
+#max-mem-mb=1024
+#EOF
+
+cat > $configdir/launcher.slurm.resources.conf<<EOF
+[small]
+name = "Small"
+cpus=1
+mem-mb=4096
+[medium]
+name = "Medium"
+cpus=4
+mem-mb=16384
+[large]
+name = "Large"
+cpus=8
+mem-mb=32768
+[xlarge]
+name = "Extra Large"
+cpus=16
+mem-mb=65536
 EOF
 
 cat > $configdir/launcher.slurm.conf << EOF 
@@ -240,7 +261,7 @@ slurm-service-user=slurm
 slurm-bin-path=/opt/slurm/bin
 
 # Singularity specifics
-constraints=Container=singularity-container
+#constraints=Container=singularity-container
 
 EOF
 
@@ -260,8 +281,6 @@ rstudio-launcher stop
 rstudio-launcher start
 rstudio-server start
 
-rstudio-server restart
-
 # Install VSCode based on the PWB version.
 if ( rstudio-server | grep configure-vs-code ); then rstudio-server configure-vs-code ; rstudio-server install-vs-code-ext; else rstudio-server install-vs-code /opt/rstudio/vscode/; fi
   
@@ -269,7 +288,8 @@ cat > $configdir/vscode.conf << EOF
 enabled=1
 exe=/usr/lib/rstudio-server/bin/code-server/bin/code-server
 args=--verbose --host=0.0.0.0 --extensions-dir=/opt/rstudio/code-server 
-EOF 
+EOF
+ 
 if [ -f /etc/rstudio/vscode-user-settings.json ]; then 
    cp /etc/rstudio/vscode-user-settings.json $configdir
 fi
@@ -283,11 +303,6 @@ do
 done
 
 rm -f /etc/rstudio
-
-#little hack to get the memory allocation working
-
-sed -i '/^include.*/i NodeName=DEFAULT RealMemory=3928' /opt/slurm/etc/slurm.conf
-sed -i '/^include.*/i SrunPortRange=59000-59999' /opt/slurm/etc/slurm.conf
 
 systemctl restart slurmctld
 
@@ -307,43 +322,5 @@ mount -a
 
 rm -rf /etc/profile.d/modules.sh
 
-
-
-#Install apptainer
-export APPTAINER_VER=1.1.4
-apt-get update -y 
-apt-get install -y gdebi-core
-for name in apptainer apptainer-suid
-do
-   wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/${name}_${APPTAINER_VER}_amd64.deb && \
-	gdebi -n ${name}_${APPTAINER_VER}_amd64.deb && \
-	rm -f ${name}_${APPTAINER_VER}_amd64.deb*
-done
-
-#Configure container folder and export to nodes
-mkdir -p /opt/apptainer/containers
-grep slurm /etc/exports | sed 's#/opt/slurm#/opt/apptainer#' | sudo tee -a /etc/exports
-exportfs -ar
-
-aws s3 cp s3://S3_BUCKETNAME/run.R /tmp
-aws s3 cp s3://S3_BUCKETNAME/r-session.bionic.sdef /tmp
-aws s3 cp s3://S3_BUCKETNAME/r-session.centos7.sdef /tmp
-aws s3 cp s3://S3_BUCKETNAME/build-container.sh /tmp 
-aws s3 cp s3://S3_BUCKETNAME/spank.tgz /tmp
-
-cd /tmp
-tar xvfz spank.tgz
-pushd slurm-singularity-exec
-make && make install 
-popd
-rm -f spank.tgz
-
-cd /tmp
-for i in *.sdef
-do
-   nohup /usr/bin/apptainer build --disable-cache /opt/apptainer/containers/${i/sdef/simg} $i >& /var/log/apptainer-build-${i/sdef/log} &
-done
-
-wait
 
 exit 0 

@@ -10,7 +10,7 @@ From: rstudio/r-session-complete:bionic-PWB_VER
     # SLURM integration (mandatory)
     groupadd -g 401 slurm 
     useradd -u 401 -g 401 slurm  
-    apt-get update && apt-get install libmunge2 && rm -rf /var/cache/apt/*
+    apt-get update && apt-get install libmunge-dev && rm -rf /var/cache/apt/*
 
     # Install Java JDK (optional) 
     apt-get update -y && \

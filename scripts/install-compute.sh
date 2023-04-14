@@ -3,7 +3,7 @@
 apt-get update -y
 
 #Install Java support
-apt-get install -y openjdk-11-jdk openjdk-8-jdk
+apt-get install -y openjdk-11-jdk 
 
 # install venv support 
 apt-get install -y python3.8-venv
@@ -28,7 +28,7 @@ grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/code-server#g' | sudo tee -a /etc
 grep slurm /etc/fstab | sed 's#/opt/slurm#/scratch#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/apptainer#g' | sudo tee -a /etc/fstab
 
-mkdir -p /usr/lib/rstudio-server /opt/{R,rstudio,code-server,apptainer} /scratch
+mkdir -p /usr/lib/rstudio-server /opt/{R,python,rstudio,code-server,apptainer} /scratch
 
 mount -a
 
@@ -46,23 +46,3 @@ rm -rf /etc/profile.d/modules.sh
 #remove default R version (too old)
 apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
 
-#Install apptainer
-export APPTAINER_VER=1.1.4
-apt-get update -y 
-apt-get install -y gdebi-core
-for name in apptainer apptainer-suid
-do
-   wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/${name}_${APPTAINER_VER}_amd64.deb && \
-        gdebi -n ${name}_${APPTAINER_VER}_amd64.deb && \
-        rm -f ${name}_${APPTAINER_VER}_amd64.deb*
-done
-
-#Update CUDA and add cuDNN
-if ( lspci | grep NVIDIA ); then 
-   wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-   mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-   apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-   add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
-   apt-get update
-   apt-get -y install cuda libcudnn8-dev
-fi
