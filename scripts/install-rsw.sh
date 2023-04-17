@@ -58,7 +58,7 @@ curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION_
     workbench_jupyterlab \
     rsp_jupyter \
     rsconnect_jupyter \
-    rsconnect_pythoni && \
+    rsconnect_python && \
 /opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
     /opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
     /opt/python/${PYTHON_VERSION_ALT}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
@@ -235,21 +235,36 @@ EOF
 
 cat > $configdir/launcher.slurm.resources.conf<<EOF
 [small]
-name = "Small"
+name = "Small (1 cpu, 4 GB mem)"
 cpus=1
 mem-mb=4096
 [medium]
-name = "Medium"
+name = "Medium (4 cpu, 16 GB mem)"
 cpus=4
 mem-mb=16384
 [large]
-name = "Large"
+name = "Large (8 cpu, 32 GB mem)"
 cpus=8
 mem-mb=32768
 [xlarge]
-name = "Extra Large"
+name = "Extra Large (16 cpu, 64 GB mem)"
 cpus=16
 mem-mb=65536
+[small]
+name = "Small GPU (1 cpu, 4 GB mem, 1 GPU)"
+cpus=1
+gpus=1
+mem-mb=4096
+[medium]
+name = "Medium GPU (4 cpu, 16 GB mem 2 GPU)"
+cpus=4
+gpus=2
+mem-mb=16384
+[large]
+name = "Large GPU (8 cpu, 32 GB mem, 4 GPU)"
+cpus=8
+gpus=4
+mem-mb=32768
 EOF
 
 cat > $configdir/launcher.slurm.conf << EOF 
@@ -262,6 +277,10 @@ slurm-bin-path=/opt/slurm/bin
 
 # Singularity specifics
 #constraints=Container=singularity-container
+
+# GPU specifics
+enable-gpus=1
+gpu-types=v100
 
 EOF
 
@@ -321,6 +340,26 @@ exportfs -ar
 mount -a
 
 rm -rf /etc/profile.d/modules.sh
+
+# add GPU cgroup support
+echo "ConstrainDevices=yes" >> /opt/slurm/etc/cgroup.conf
+
+systemctl restart slurmctld 
+
+#add support for Lua Job Submit plugin 
+
+apt-get install -y liblua5.3-dev 
+export SLURM_VERSION=`/opt/slurm/bin/sinfo -V | awk '{print $2}' `
+tmpdir=`mktemp -d`
+push $tmpdir
+git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git
+cd slurm/src/plugins/job_submit/lua
+touch ../../../../config.h
+gcc -fPIC -shared -I ../../../.. -I /usr/include/lua5.3/ -I /opt/slurm/include/ job_submit_lua.c -o /opt/slurm/lib/slurm/job_submit_lua.so 
+echo "JobSubmitPlugins=lua" >> /opt/slurm/etc/cgroup.conf
+
+systemctl restart slurmctld
+
 
 
 exit 0 

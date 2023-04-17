@@ -44,6 +44,38 @@ Scheduling:
       Networking:
         PlacementGroup:
           Enabled: TRUE
+        SubnetIds:
+          - SUBNETID
+
+    - Name: gpu 
+      ComputeResources:
+        - Name: small
+          InstanceType: p3.2xlarge
+          MaxCount: 5
+          MinCount: 1
+          Efa:
+            Enabled: FALSE
+        - Name: medium
+          InstanceType: p3.8xlarge
+          MaxCount: 5
+          MinCount: 0
+          Efa:
+            Enabled: FALSE
+        - Name: large
+          InstanceType: p3.16xlarge
+          MaxCount: 5
+          MinCount: 0
+          Efa:
+            Enabled: FALSE
+      CustomActions:
+        OnNodeConfigured:
+          Script: "s3://S3_BUCKETNAME/install-compute.sh"
+      Iam:
+        S3Access:
+          - BucketName: S3_BUCKETNAME
+      Networking:
+        PlacementGroup:
+          Enabled: TRUE
         SubnetIds: 
           - SUBNETID
 
