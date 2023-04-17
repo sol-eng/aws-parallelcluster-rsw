@@ -351,13 +351,22 @@ systemctl restart slurmctld
 apt-get install -y liblua5.3-dev 
 export SLURM_VERSION=`/opt/slurm/bin/sinfo -V | awk '{print $2}' `
 tmpdir=`mktemp -d`
-push $tmpdir
-git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git
-cd slurm/src/plugins/job_submit/lua
-touch ../../../../config.h
-gcc -fPIC -shared -I ../../../.. -I /usr/include/lua5.3/ -I /opt/slurm/include/ job_submit_lua.c -o /opt/slurm/lib/slurm/job_submit_lua.so 
+pushd $tmpdir
+  git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/slurm.git
+  pushd slurm
+    ./configure
+    pushd src/lua
+      make 
+    popd
+    pushd src/plugins/job_submit/lua
+      make 
+      cp .libs/job_submit_lua.so /opt/slurm/lib/slurm/job_submit_lua.so
+    popd
+  popd
+popd
+rm -rf $tmpdir
 echo "JobSubmitPlugins=lua" >> /opt/slurm/etc/slurm.conf
-
+aws s3 cp s3://S3_BUCKETNAME/job_submit.lua /opt/slurm/etc/
 systemctl restart slurmctld
 
 
