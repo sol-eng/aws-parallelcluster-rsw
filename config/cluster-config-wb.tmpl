@@ -9,6 +9,8 @@ HeadNode:
   Iam: 
     S3Access: 
       - BucketName: S3_BUCKETNAME
+    AdditionalIamPolicies:
+      - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
   InstanceType: t2.medium
   Networking: 
     AdditionalSecurityGroups: 
@@ -83,14 +85,6 @@ DevSettings:
   Timeouts:
     HeadNodeBootstrapTimeout: 5400  # timeout in seconds
     ComputeNodeBootstrapTimeout: 5400  # timeout in seconds
-
-SharedStorage:
-  - MountDir: /data
-    Name: data
-    StorageType: FsxLustre
-    FsxLustreSettings:
-      StorageCapacity: 1200
-      DeploymentType: SCRATCH_2
 
 Tags:
   - Key: rs:environment
