@@ -128,8 +128,8 @@ openssl rsa -in $configdir/launcher.pem \
 
 
 # Add sample user 
-groupadd --system --gid 1001 rstudio
-useradd -s /bin/bash -m --system --gid rstudio --uid 1001 rstudio
+groupadd --system --gid 8787 rstudio
+useradd -s /bin/bash -m --system --gid rstudio --uid 8787 rstudio
 
 echo -e "rstudio\nrstudio" | passwd rstudio
 
@@ -250,21 +250,6 @@ mem-mb=32768
 name = "Extra Large (16 cpu, 64 GB mem)"
 cpus=16
 mem-mb=65536
-[small]
-name = "Small GPU (1 cpu, 4 GB mem, 1 GPU)"
-cpus=1
-gpus=1
-mem-mb=4096
-[medium]
-name = "Medium GPU (4 cpu, 16 GB mem 2 GPU)"
-cpus=4
-gpus=2
-mem-mb=16384
-[large]
-name = "Large GPU (8 cpu, 32 GB mem, 4 GPU)"
-cpus=8
-gpus=4
-mem-mb=32768
 EOF
 
 cat > $configdir/launcher.slurm.conf << EOF 
