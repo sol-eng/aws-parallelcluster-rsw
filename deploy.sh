@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CLUSTERNAME="demo82"
+CLUSTERNAME="demo85"
 S3_BUCKETNAME="hpc-scripts1234"
 SECURITYGROUP_RSW="sg-0838ae772a776ab8e"
 SUBNETID="subnet-cd7e8c86"

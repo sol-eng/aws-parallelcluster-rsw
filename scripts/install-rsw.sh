@@ -356,7 +356,7 @@ git clone --depth 1 -b slurm-${SLURM_VERSION//./-}-1 https://github.com/SchedMD/
 cd slurm/src/plugins/job_submit/lua
 touch ../../../../config.h
 gcc -fPIC -shared -I ../../../.. -I /usr/include/lua5.3/ -I /opt/slurm/include/ job_submit_lua.c -o /opt/slurm/lib/slurm/job_submit_lua.so 
-echo "JobSubmitPlugins=lua" >> /opt/slurm/etc/cgroup.conf
+echo "JobSubmitPlugins=lua" >> /opt/slurm/etc/slurm.conf
 
 systemctl restart slurmctld
 
