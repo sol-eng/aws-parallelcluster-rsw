@@ -1,17 +1,13 @@
 --[[
 
- Example lua script demonstrating the Slurm job_submit/lua interface.
- This is only an example, not meant for use in its current form.
-
- For use, this script should be copied into a file name "job_submit.lua"
- in the same directory as the Slurm configuration file, slurm.conf.
+Simple job_submit plugin that redirects all jobs to the gpu partition if GPUs are requested 
 
 --]]
 
 function slurm_job_submit(job_desc, job_rec, part_list, modify_uid)
-	if job_desc.partitions == "all" then
-		slurm.log_info("slurm_job_modify: for job %u from uid %u, setting default comment value: %s",
-				job_rec.job_id, modify_uid, comment)
+	if string.match(job_desc['tres_per_job'],'gpu')  then
+		slurm.log_info("slurm_job_modify: job requested partition %s but seems to need GPUs, hence we redirect to partition gpu",
+				job_desc.partition)
 		job_desc.partition = "gpu"
 	end
 
@@ -19,6 +15,7 @@ function slurm_job_submit(job_desc, job_rec, part_list, modify_uid)
 end
 
 function slurm_job_modify(job_desc, job_rec, part_list, modify_uid)
+
    return slurm.SUCCESS
 end
 
