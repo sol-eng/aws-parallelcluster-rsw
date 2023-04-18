@@ -319,7 +319,7 @@ grep slurm /etc/exports | sed 's/slurm/rstudio/' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's/slurm/code-server/' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's#/opt/slurm#/usr/lib/rstudio-server#' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's#/opt/slurm#/scratch#' | sudo tee -a /etc/exports
-
+grep slurm /etc/exports | sed 's/slurm/prometheus/' | sudo tee -a /etc/exports 
 exportfs -ar 
 
 mount -a
@@ -355,5 +355,37 @@ aws s3 cp s3://S3_BUCKETNAME/job_submit.lua /opt/slurm/etc/
 systemctl restart slurmctld
 
 
+# Prometheus
+
+mkdir /opt/prometheus
+PROM_VER=2.43.0
+
+wget https://github.com/prometheus/prometheus/releases/download/v${PROM_VER}/prometheus-${PROM_VER}.linux-amd64.tar.gz
+tar xvfz prometheus-${PROM_VER}.linux-amd64.tar.gz -C /opt/prometheus
+rm -f prometheus-${PROM_VER}.linux-amd64.tar.gz
+
+PROM_NODE_EX_VER="1.5.0"
+wget https://github.com/prometheus/node_exporter/releases/download/v${PROM_NODE_EX_VER}/node_exporter-${PROM_NODE_EX_VER}.linux-amd64.tar.gz
+tar xvfz node_exporter-${PROM_NODE_EX_VER}.linux-amd64.tar.gz -C /opt/prometheus/
+rm -f node_exporter-${PROM_NODE_EX_VER}.linux-amd64.tar.gz
+
+/opt/prometheus/node_exporter-${PROM_NODE_EX_VER}.linux-amd64/node_exporter &
+
+cat << EOF > /opt/prometheus/prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+- job_name: node
+  static_configs:
+  - targets: ['XXX']
+EOF
+
+prom_targets=`/opt/slurm/bin/sinfo -N  -h  | awk '{print $1}' | tr '\n' ' ' | rev | sed "s# #','#2g" | rev | sed "s#',#:9100',#g" | sed 's/ /:9100/'`
+
+sed -i "s/XXX/localhost:9100','$prom_targets/" /opt/prometheus/prometheus.yml
+pushd /opt/prometheus
+/opt/prometheus/prometheus-${PROM_VER}.linux-amd64/prometheus &
+popd
 
 exit 0 
