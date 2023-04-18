@@ -313,19 +313,6 @@ systemctl restart slurmctld
 # Packages for R packages
 apt-get install -y libzmq5  libglpk40 libnode-dev
 
-grep slurm /etc/exports | sed 's/slurm/R/' | sudo tee -a /etc/exports 
-grep slurm /etc/exports | sed 's/slurm/python/' | sudo tee -a /etc/exports
-grep slurm /etc/exports | sed 's/slurm/rstudio/' | sudo tee -a /etc/exports      
-grep slurm /etc/exports | sed 's/slurm/code-server/' | sudo tee -a /etc/exports
-grep slurm /etc/exports | sed 's#/opt/slurm#/usr/lib/rstudio-server#' | sudo tee -a /etc/exports
-grep slurm /etc/exports | sed 's#/opt/slurm#/scratch#' | sudo tee -a /etc/exports
-grep slurm /etc/exports | sed 's/slurm/prometheus/' | sudo tee -a /etc/exports 
-exportfs -ar 
-
-mount -a
-
-rm -rf /etc/profile.d/modules.sh
-
 # add GPU cgroup support
 echo "ConstrainDevices=yes" >> /opt/slurm/etc/cgroup.conf
 
@@ -387,5 +374,22 @@ sed -i "s/XXX/localhost:9100','$prom_targets/" /opt/prometheus/prometheus.yml
 pushd /opt/prometheus
 /opt/prometheus/prometheus-${PROM_VER}.linux-amd64/prometheus &
 popd
+
+
+mkdir -p /opt/code-server
+
+grep slurm /etc/exports | sed 's/slurm/R/' | sudo tee -a /etc/exports
+grep slurm /etc/exports | sed 's/slurm/python/' | sudo tee -a /etc/exports
+grep slurm /etc/exports | sed 's/slurm/rstudio/' | sudo tee -a /etc/exports
+grep slurm /etc/exports | sed 's/slurm/code-server/' | sudo tee -a /etc/exports
+grep slurm /etc/exports | sed 's#/opt/slurm#/usr/lib/rstudio-server#' | sudo tee -a /etc/exports
+grep slurm /etc/exports | sed 's#/opt/slurm#/scratch#' | sudo tee -a /etc/exports
+grep slurm /etc/exports | sed 's/slurm/prometheus/' | sudo tee -a /etc/exports
+exportfs -ar 
+
+mount -a
+
+rm -rf /etc/profile.d/modules.sh
+
 
 exit 0 
