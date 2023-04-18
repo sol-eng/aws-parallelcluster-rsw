@@ -27,8 +27,7 @@ grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/rstudio#g' | sudo tee -a /etc/fst
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/code-server#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/scratch#g' | sudo tee -a /etc/fstab
 grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/apptainer#g' | sudo tee -a /etc/fstab
-grep slurm /etc/fstab | sed 's#/opt/slurm#/opt/prometheus#g' | sudo tee -a /etc/fstab
-mkdir -p /usr/lib/rstudio-server /opt/{R,python,rstudio,code-server,apptainer,prometheus} /scratch
+mkdir -p /usr/lib/rstudio-server /opt/{R,python,rstudio,code-server,apptainer} /scratch
 
 mount -a
 
@@ -47,5 +46,5 @@ rm -rf /etc/profile.d/modules.sh
 apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
 
 #Prometheus Node Exporter
-PROM_NODE_EX_VER="1.5.0"
-/opt/prometheus/node_exporter-${PROM_NODE_EX_VER}.linux-amd64/node_exporter &
+apt-get install -y prometheus-node-exporter
+apt-get install -y prometheus-process-exporter
