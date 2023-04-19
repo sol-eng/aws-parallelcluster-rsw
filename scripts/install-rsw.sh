@@ -23,6 +23,7 @@ do
   /opt/R/$R_VERSION/bin/Rscript /tmp/run.R >& /var/log/r-packages-install-$R_VERSION.log &
 done
 
+wait 
 
 ### Install Python  -------------------------------------------------------------#
 
@@ -363,6 +364,24 @@ prom_targets=`/opt/slurm/bin/sinfo -N  -h  | awk '{print $1}' | tr '\n' ' ' | re
 sed -i "s/XXX/localhost:9100','$prom_targets/" /etc/prometheus/prometheus.yml
 
 systemctl restart prometheus
+
+# Grafana
+
+wget -q -O - https://packages.grafana.com/gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/grafana.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/grafana.gpg] https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+apt-get update
+apt-get install -y grafana
+systemctl stop grafana-server
+
+aws s3 cp s3://S3_BUCKETNAME/grafana.db.gz /var/lib/grafana
+gzip -d /var/lib/grafana/grafana.db.gz
+chown grafana:grafana /var/lib/grafana/grafana.db 
+chmod 640 /var/lib/grafana/grafana.db 
+
+systemctl start grafana-server
+
+
+
 
 mkdir -p /opt/code-server
 
