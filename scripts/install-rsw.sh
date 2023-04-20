@@ -373,10 +373,10 @@ apt-get update
 apt-get install -y grafana
 systemctl stop grafana-server
 
-#aws s3 cp s3://S3_BUCKETNAME/grafana.db.gz /var/lib/grafana
-#gzip -d /var/lib/grafana/grafana.db.gz
-#chown grafana:grafana /var/lib/grafana/grafana.db 
-#chmod 640 /var/lib/grafana/grafana.db 
+aws s3 cp s3://S3_BUCKETNAME/grafana.db.gz /var/lib/grafana
+gzip -d /var/lib/grafana/grafana.db.gz
+chown grafana:grafana /var/lib/grafana/grafana.db 
+chmod 640 /var/lib/grafana/grafana.db 
 
 systemctl start grafana-server
 
