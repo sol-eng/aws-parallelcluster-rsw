@@ -49,22 +49,10 @@ Scheduling:
 
     - Name: gpu 
       ComputeResources:
-        - Name: small
-          InstanceType: p3.2xlarge
-          MaxCount: 2
-          MinCount: 1
-          Efa:
-            Enabled: FALSE
-        - Name: medium
-          InstanceType: p3.8xlarge
-          MaxCount: 2
-          MinCount: 0
-          Efa:
-            Enabled: FALSE
         - Name: large
           InstanceType: p3.16xlarge
           MaxCount: 1
-          MinCount: 0
+          MinCount: 1 
           Efa:
             Enabled: FALSE
       CustomActions:
@@ -83,6 +71,14 @@ DevSettings:
   Timeouts:
     HeadNodeBootstrapTimeout: 5400  # timeout in seconds
     ComputeNodeBootstrapTimeout: 5400  # timeout in seconds
+
+SharedStorage:
+  - MountDir: /data
+    Name: data
+    StorageType: FsxLustre
+    FsxLustreSettings:
+      StorageCapacity: 1200
+      DeploymentType: SCRATCH_2
 
 Tags:
   - Key: rs:environment

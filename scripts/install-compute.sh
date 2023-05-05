@@ -13,7 +13,7 @@ apt-get install -y libfreetype6-dev libpng-dev libtiff5-dev
 
 # Add sample user 
 groupadd --system --gid 8787 rstudio
-useradd -s /bin/bash -m --system --gid rstudio --uid 8787 rstudio
+useradd -s /bin/bash -m  -d /data/rstudio --system --gid rstudio --uid 8787 rstudio
 
 echo -e "rstudio\nrstudio" | passwd rstudio
 
@@ -48,3 +48,30 @@ apt remove -y r-base r-base-core r-base-dev r-base-html r-doc-html
 #Prometheus Node Exporter
 apt-get install -y prometheus-node-exporter
 apt-get install -y prometheus-process-exporter
+
+
+#setup GPUs
+
+if ( lspci | grep NVIDIA ); then 
+   wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+   mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+   apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+   add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+   apt-get update
+   apt-get -y install cuda libcudnn8-dev
+   rmmod gdrdrv
+   rmmod nvidia
+   modprobe nvidia
+fi
+
+#Install apptainer
+export APPTAINER_VER=1.1.8
+apt-get update -y 
+apt-get install -y gdebi-core
+for name in apptainer apptainer-suid
+do
+   wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/${name}_${APPTAINER_VER}_amd64.deb && \
+        gdebi -n ${name}_${APPTAINER_VER}_amd64.deb && \
+        rm -f ${name}_${APPTAINER_VER}_amd64.deb*
+done
+

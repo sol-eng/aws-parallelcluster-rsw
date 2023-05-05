@@ -130,7 +130,7 @@ openssl rsa -in $configdir/launcher.pem \
 
 # Add sample user 
 groupadd --system --gid 8787 rstudio
-useradd -s /bin/bash -m --system --gid rstudio --uid 8787 rstudio
+useradd -s /bin/bash -m -d /data/rstudio --system --gid rstudio --uid 8787 rstudio
 
 echo -e "rstudio\nrstudio" | passwd rstudio
 
@@ -262,7 +262,7 @@ slurm-service-user=slurm
 slurm-bin-path=/opt/slurm/bin
 
 # Singularity specifics
-#constraints=Container=singularity-container
+constraints=Container=singularity-container
 
 # GPU specifics
 enable-gpus=1
@@ -391,10 +391,47 @@ grep slurm /etc/exports | sed 's/slurm/rstudio/' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's/slurm/code-server/' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's#/opt/slurm#/usr/lib/rstudio-server#' | sudo tee -a /etc/exports
 grep slurm /etc/exports | sed 's#/opt/slurm#/scratch#' | sudo tee -a /etc/exports
+grep slurm /etc/exports | sed 's/slurm/apptainer/' | sudo tee -a /etc/exports
+
 exportfs -ar 
 
 mount -a
 
 rm -rf /etc/profile.d/modules.sh
 
+#Install apptainer
+export APPTAINER_VER=1.1.8
+apt-get update -y 
+apt-get install -y gdebi-core
+for name in apptainer apptainer-suid
+do
+   wget https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VER}/${name}_${APPTAINER_VER}_amd64.deb && \
+	gdebi -n ${name}_${APPTAINER_VER}_amd64.deb && \
+	rm -f ${name}_${APPTAINER_VER}_amd64.deb*
+done
 
+#Configure container folder and export to nodes
+mkdir -p /opt/apptainer/containers
+grep slurm /etc/exports | sed 's#/opt/slurm#/opt/apptainer#' | sudo tee -a /etc/exports
+exportfs -ar
+
+aws s3 cp s3://S3_BUCKETNAME/run.R /tmp
+aws s3 cp s3://S3_BUCKETNAME/r-session.bionic.sdef /tmp
+aws s3 cp s3://S3_BUCKETNAME/r-session.centos7.sdef /tmp
+aws s3 cp s3://S3_BUCKETNAME/build-container.sh /tmp 
+aws s3 cp s3://S3_BUCKETNAME/spank.tgz /tmp
+
+cd /tmp
+tar xvfz spank.tgz
+pushd slurm-singularity-exec
+make && make install 
+popd
+rm -f spank.tgz
+
+cd /tmp
+for i in *.sdef
+do
+   nohup /usr/bin/apptainer build --disable-cache /opt/apptainer/containers/${i/sdef/simg} $i >& /var/log/apptainer-build-${i/sdef/log} &
+done
+
+wait
