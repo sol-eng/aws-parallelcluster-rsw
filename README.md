@@ -1,3 +1,6 @@
+> **IMPORTANT: Please do not use AWS ParallelCluster version 3.6.0+ - Posit Workbench is currently not compatible with the SLURM version used in ParallelCluster 3.6.0+**
+
+
 # aws-parallelcluster-rsw
 An opinionated setup of RStudio Workbench (RSW) for the use with AWS ParallelCluster
 
@@ -27,3 +30,5 @@ Run `./deploy.sh`. This will copy scripts and config files to the existing S3 bu
 # More information 
 
 See [doc](./doc) folder. 
+
+
