@@ -33,6 +33,8 @@ curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION}
     dpkg --info python-${PYTHON_VERSION}_1_amd64.deb | grep " Depends" | cut -d ":" -f 2 > /opt/python/$PYTHON_VERSION/.depends
     apt clean all && rm -rf /var/cache/apt && rm -f python-${PYTHON_VERSION}_1_amd64.deb
 
+/opt/python/${PYTHON_VERSION}/bin/pip install --upgrade pip 
+
 /opt/python/${PYTHON_VERSION}/bin/pip install \
     jupyter \
     jupyterlab \
@@ -52,6 +54,8 @@ curl -O https://cdn.rstudio.com/python/ubuntu-2004/pkgs/python-${PYTHON_VERSION_
     apt-get update && gdebi -n python-${PYTHON_VERSION_ALT}_1_amd64.deb && \
     dpkg --info python-${PYTHON_VERSION_ALT}_1_amd64.deb | grep " Depends" | cut -d ":" -f 2 > /opt/python/$PYTHON_VERSION_ALT/.depends
     apt clean all && rm -rf /var/cache/apt && rm -f python-${PYTHON_VERSION_ALT}_1_amd64.deb
+
+/opt/python/${PYTHON_VERSION}/bin/pip install --upgrade pip 
 
 /opt/python/${PYTHON_VERSION_ALT}/bin/pip install \
     jupyter \
