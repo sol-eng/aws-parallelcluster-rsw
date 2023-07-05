@@ -135,7 +135,10 @@ openssl rsa -in $configdir/launcher.pem \
 # Add sample user 
 groupadd --system --gid 8787 rstudio
 useradd -s /bin/bash -m -d /data/rstudio --system --gid rstudio --uid 8787 rstudio
-
+groupadd --system --gid 8788 rstudio-admins
+groupadd --system --gid 8789 rstudio-superuser-admins
+usermod -G rstudio-admins,rstudio-superuser-admins rstudio
+ 
 echo -e "rstudio\nrstudio" | passwd rstudio
 
 cat  > /home/rstudio/.Rprofile << EOF
@@ -208,7 +211,29 @@ r-versions-path=/opt/rstudio/shared-storage/r-versions
 
 auth-pam-sessions-enabled=1
 auth-pam-sessions-use-password=1
+
+# Enable Admin Dashboard
+admin-enabled=1
+admin-group=rstudio-admins
+admin-superuser-group=rstudio-superuser-admins
+admin-monitor-log-use-server-time-zone=1
+audit-r-console-user-limit-mb=200
+audit-r-console-user-limit-months=3
+
+# Enable Auditing
+audit-r-console=all
+audit-r-sessions=1
+audit-data-path=/opt/rstudio/shared-data/head-node/audit-data
+audit-r-sessions-limit-mb=512
+audit-r-sessions-limit-months=6
+
+
+# Enable Monitoring
+monitor-data-path=/opt/rstudio/shared-data/head-node/monitor-data
 EOF
+
+mkdir -p /opt/rstudio/shared-data/head-node/{audit-data,monitor-data}
+chown -R rstudio-server /opt/rstudio/shared-data/head-node/
 
 cat > $configdir/launcher.conf<<EOF
 [server]
