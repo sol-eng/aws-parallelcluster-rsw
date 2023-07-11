@@ -74,7 +74,7 @@ wait
 
 
 # prepare renv package cache 
-sudo mkdir -p /scratch/renv
+sudo mkdir -p /data/renv
 cat << EOF > /tmp/acl
 user::rwx
 group::rwx
@@ -86,7 +86,7 @@ default:mask::rwx
 default:other::rwx
 EOF
 
-setfacl -R --set-file=/tmp/acl /scratch/renv
+setfacl -R --set-file=/tmp/acl /data/renv
 
 
 # Install RSWB
