@@ -39,12 +39,13 @@ dir.create(libdir,recursive=TRUE)
 curldir<-paste0(system("mktemp -d",intern=TRUE),"/curl/",currver)
 if(dir.exists(curldir)) {unlink(curldir,recursive=TRUE)}
 dir.create(curldir,recursive=TRUE)
-install.packages("RCurl",curldir, repos="https://packagemanager.rstudio.com/cran/latest")
+install.packages(c("RCurl","rjson"),curldir, repos="https://packagemanager.rstudio.com/cran/latest")
 library(RCurl,lib.loc=curldir)
+library(rjson,lib.loc=curldir)
 
-
-pnames=c("clustermq", "batchtools", "DBI", "R6", "RJDBC", "RODBC", "RSQLite", "Rcpp", "base64enc", "checkmate", "crayon", "commonmark", "curl", "devtools", "digest", "evaluate", "ellipsis", "fastmap", "glue", "haven", "highr", "htmltools", "htmlwidgets", "httpuv", "jsonlite", "keyring", "knitr", "later", "learnr", "lifecycle", "magrittr", "markdown", "mime", "miniUI", "mongolite", "odbc", "openssl", "packrat", "plumber", "png", "profvis", "promises", "r2d3", "ragg", "rappdirs", "rJava", "readr", "readxl", "renv", "reticulate", "rlang", "rmarkdown", "roxygen2", "rprojroot", "rsconnect", "rstan", "rstudioapi", "shiny", "shinytest", "sourcetools", "stringi", "stringr", "testthat", "tinytex", "withr", "xfun", "xml2", "xtable", "yaml")
-
+jsondata<-fromJSON(file="https://raw.githubusercontent.com/rstudio/rstudio/main/src/cpp/session/resources/dependencies/r-packages.json")
+pnames<-c()
+for (feature in jsondata$features) { pnames<-unique(c(pnames,feature$packages)) }
 
 #Start with a starting date for the time-based snapshot 60 days past the R release
 releasedate <- as.Date(paste0(R.version$year,"-",R.version$month,"-",R.version$day))+60
