@@ -8,8 +8,6 @@
 # * add entries into /etc/rstudio/r-versions to define the respective 
 #       R version (x.y.z) and point to the repos.conf file  
 # * update Rprofile.site with the same repository informations 
-# * add renv config into Renviron.site to use 
-#       a global cache in /scratch/renv
 # * install all needed R packages for Workbench to work and add them 
 #       in a separate .libPath()
 # * auto-detect which OS it is running on and add binary package support
