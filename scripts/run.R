@@ -8,6 +8,8 @@
 # * add entries into /etc/rstudio/r-versions to define the respective 
 #       R version (x.y.z) and point to the repos.conf file  
 # * update Rprofile.site with the same repository informations 
+# * add renv config into Renviron.site to use 
+#       a global cache in /scratch/renv
 # * install all needed R packages for Workbench to work and add them 
 #       in a separate .libPath()
 # * auto-detect which OS it is running on and add binary package support
@@ -27,6 +29,8 @@ currver <- paste0(R.Version()$major,".",R.Version()$minor)
 paste("version",currver)
 
 pmurl <- "https://packagemanager.rstudio.com"
+cranrepo <- paste0(pmurl,"/cran/")
+cranrepolatest <- paste0(cranrepo,"latest")
 
 libdir <- paste0("/opt/rstudio/r-integration/",currver)
 
@@ -52,14 +56,14 @@ paste("release", releasedate)
 #Attempt to install packages from snapshot - if snapshot does not exist, decrease day by 1 and try again
 getreleasedate <- function(repodate){
   
-  repo=paste0(pmurl,"/cran/",binaryflag,repodate)
+  repo=paste0(cranrepo,binaryflag,repodate)
   paste(repo)
   URLfound=FALSE
   while(!URLfound) {
    if (!RCurl::url.exists(paste0(repo,"/src/contrib/PACKAGES"),useragent="curl/7.39.0 Rcurl/1.95.4.5")) {
 	repodate<-as.Date(repodate)-1
         paste(repodate)
-        repo=paste0(pmurl,"/cran/",repodate)
+        repo=paste0(cranrepo,repodate)
    } else {
    URLfound=TRUE
    }
@@ -70,7 +74,7 @@ getreleasedate <- function(repodate){
 releasedate <- getreleasedate(as.Date(releasedate))
 
 #Final CRAN snapsot URL
-repo=paste0(pmurl,"/cran/",binaryflag,releasedate)
+repo=paste0(cranrepo,binaryflag,releasedate)
 
 avpack<-available.packages(paste0(repo,"/src/contrib"))
 
@@ -88,13 +92,13 @@ sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
 sink()
 
 # Prepare for BioConductor
-options(BioC_mirror = "https://packagemanager.rstudio.com/bioconductor")
+options(BioC_mirror = paste0(pmurl,"/bioconductor")
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
 biocdir<-paste0(system("mktemp -d",intern=TRUE),"/bioc/",currver)
 if(dir.exists(biocdir)) {unlink(biocdir,recursive=TRUE)}
 dir.create(biocdir,recursive=TRUE)
-install.packages("BiocManager",biocdir, repos="https://packagemanager.rstudio.com/cran/latest")
+install.packages("BiocManager",biocdir, repos=cranrepolatest)
 library(BiocManager,lib.loc=biocdir,quietly=TRUE,verbose=FALSE)
 
 # Version of BioConductor as given by BiocManager (can also be manually set)
