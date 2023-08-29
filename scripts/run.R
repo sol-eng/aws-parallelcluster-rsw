@@ -92,7 +92,7 @@ sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
 sink()
 
 # Prepare for BioConductor
-options(BioC_mirror = paste0(pmurl,"/bioconductor")
+options(BioC_mirror = paste0(pmurl,"/bioconductor"))
 
 # Make sure BiocManager is loaded - needed to determine BioConductor Version
 biocdir<-paste0(system("mktemp -d",intern=TRUE),"/bioc/",currver)
