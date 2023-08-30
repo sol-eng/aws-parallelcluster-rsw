@@ -85,6 +85,9 @@ for (package in pnames) {
   }
 }
 
+# also add batchtools and clustermq
+install.packages(c("batchtools","clustermq"),repos=repo,libdir)
+
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
   cat("RENV_PATHS_ROOT=/data/renv\n")
