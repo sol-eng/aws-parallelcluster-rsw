@@ -85,14 +85,31 @@ for (package in pnames) {
   }
 }
 
-# also add batchtools and clustermq
-install.packages(c("batchtools","clustermq"),repos=repo,libdir)
+# also add batchtools, clustermq and tidyverse
+install.packages(c("batchtools","clustermq","tidyverse"),repos=repo,libdir)
+
+
 
 sink(paste0("/opt/R/",currver,"/lib/R/etc/Renviron.site"), append=TRUE)
   cat("RENV_PATHS_PREFIX_AUTO=TRUE\n")
   cat("RENV_PATHS_ROOT=/data/renv\n")
   cat("RENV_PATHS_SANDBOX=/data/renv/sandbox\n")
+  cat("R_BATCHTOOLS_SEARCH_PATH=/opt/rstudio/r-integration/batchtools/")
 sink()
+
+# define batchtools default settings
+dir.create("/opt/rstudio/r-integration/batchtools")
+sink("/opt/rstudio/r-integration/batchtools/batchtools.conf.R")
+  cat("cluster.functions = makeClusterFunctionsSlurm(template=/opt/rstudio/r-integration/batchtools/slurm.tmpl)\n")
+  cat("default.resources = list(walltime = 60, ncpus=1, memory = 1024)\n")
+sink()
+
+system(paste0("cp ",libdir,"/batchtools/templates/slurm-simple.tmpl /opt/rstudio/r-integration/batchtools/slurm.tmpl"))
+system("sed -i 's#Rscript#${R_HOME}/bin/Rscript#' /opt/rstudio/r-integration/batchtools/slurm.tmpl")
+
+# tweak clustermq SLURM template
+system(paste0("sed -i 's#R --no#${R_HOME}/bin/R --no#' ",libdir,"/clustermq/SLURM.tmpl")
+system(paste0("sed -i 's#| 1024#| 4096#' ",libdir,"/clustermq/SLURM.tmpl")
 
 # Prepare for BioConductor
 options(BioC_mirror = paste0(pmurl,"/bioconductor"))
