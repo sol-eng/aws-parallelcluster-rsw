@@ -30,11 +30,11 @@ Scheduling:
     - Name: all 
       ComputeResources:
         - Name: rstudio 
-          InstanceType: c5n.18xlarge
+          InstanceType: t2.xlarge
           MaxCount: 10 
           MinCount: 1
           Efa:
-            Enabled: TRUE
+            Enabled: FALSE
       CustomActions:
         OnNodeConfigured:
           Script: "s3://S3_BUCKETNAME/install-compute.sh"
@@ -43,7 +43,7 @@ Scheduling:
           - BucketName: S3_BUCKETNAME
       Networking:
         PlacementGroup:
-          Enabled: TRUE
+          Enabled: FALSE
         SubnetIds:
           - SUBNETID
 
@@ -52,7 +52,7 @@ Scheduling:
         - Name: large
           InstanceType: p3.16xlarge
           MaxCount: 1
-          MinCount: 1 
+          MinCount: 0 
           Efa:
             Enabled: FALSE
       CustomActions:
@@ -84,6 +84,6 @@ Tags:
   - Key: rs:environment
     Value: development
   - Key: rs:owner
-    Value: michael.mayer@rstudio.com
+    Value: none@rstudio.com
   - Key: rs:project
     Value: solutions 
