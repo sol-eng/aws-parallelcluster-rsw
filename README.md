@@ -1,4 +1,4 @@
-> **IMPORTANT: Please do not use AWS ParallelCluster version 3.6.0+ - Posit Workbench is currently not compatible with the SLURM version used in ParallelCluster 3.6.0+**
+> **IMPORTANT: ParallelCluster 3.6.0+ is compatible with Posit Workbench when using 2023.06.2+**
 
 
 # aws-parallelcluster-rsw
@@ -21,6 +21,8 @@ Once done, a `source aws-parallelcluster/bin/activate` will activate the `venv`,
 ## Edit config variables
 
 Edit lines 3 to 9 of `deploy.sh` to reflect the appropriate details of your environment. 
+
+Also check in `config/cluster-config-wb.tmpl` whether you will need to set the tags - if you do, please make sure you supply a value to `rs:owner` which should be your eMail address. If not, you can remove whe whole `Tags:` section in the YAML template file. 
 
 ## Start the deployment 
 
