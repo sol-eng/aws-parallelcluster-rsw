@@ -93,7 +93,7 @@ setfacl -R --set-file=/tmp/acl /data/renv
 groupadd --system --gid 900 rstudio-server
 useradd -s /bin/bash -m --system --gid rstudio-server --uid 900 rstudio-server
 RSWB_VER=PWB_VER
-curl -O https://s3.amazonaws.com/rstudio-ide-build/server/focal/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb 
+curl -O https://download2.rstudio.org/server/focal/amd64/rstudio-workbench-${RSWB_VER}-amd64.deb 
 gdebi -n rstudio-workbench-${RSWB_VER}-amd64.deb
 rm -f rstudio-workbench-${RSWB_VER}-amd64.deb
 
