@@ -1,11 +1,11 @@
 #!/bin/bash
 
-CLUSTERNAME="demo1"
-S3_BUCKETNAME="hpc-scripts1234"
-SECURITYGROUP_RSW="sg-0838ae772a776ab8e"
-SUBNETID="subnet-cd7e8c86"
+CLUSTERNAME="add-cluster-name"
+S3_BUCKETNAME="add-bucket-name"
+SECURITYGROUP_RSW="sg-##"
+SUBNETID="subnet-##"
 REGION="eu-west-1"
-KEY="michael"
+KEY="add-keyname"
 
 # Posit Workbench Version
 PWB_VER=2022.07.2-576.pro12
