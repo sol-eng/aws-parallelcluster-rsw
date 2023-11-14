@@ -108,8 +108,8 @@ system(paste0("cp ",libdir,"/batchtools/templates/slurm-simple.tmpl /opt/rstudio
 system("sed -i 's#Rscript#${R_HOME}/bin/Rscript#' /opt/rstudio/r-integration/batchtools/slurm.tmpl")
 
 # tweak clustermq SLURM template
-system(paste0("sed -i 's#R --no#${R_HOME}/bin/R --no#' ",libdir,"/clustermq/SLURM.tmpl")
-system(paste0("sed -i 's#| 1024#| 4096#' ",libdir,"/clustermq/SLURM.tmpl")
+system(paste0("sed -i 's#R --no#${R_HOME}/bin/R --no#' ",libdir,"/clustermq/SLURM.tmpl"))
+system(paste0("sed -i 's#| 1024#| 4096#' ",libdir,"/clustermq/SLURM.tmpl"))
 
 # Prepare for BioConductor
 options(BioC_mirror = paste0(pmurl,"/bioconductor"))
