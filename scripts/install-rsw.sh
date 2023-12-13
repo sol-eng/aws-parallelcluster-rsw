@@ -139,7 +139,7 @@ groupadd --system --gid 8788 rstudio-admins
 groupadd --system --gid 8789 rstudio-superuser-admins
 usermod -G rstudio-admins,rstudio-superuser-admins rstudio
  
-echo -e "rstudio\nrstudio" | passwd rstudio
+echo -e "Testme1234\nTestme1234" | passwd rstudio
 
 cat  > /home/rstudio/.Rprofile << EOF
 #set SLURM binaries PATH so that RSW Launcher jobs work
