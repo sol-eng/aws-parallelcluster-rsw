@@ -15,7 +15,7 @@ apt-get install -y libfreetype6-dev libpng-dev libtiff5-dev
 groupadd --system --gid 8787 rstudio
 useradd -s /bin/bash -m  -d /data/rstudio --system --gid rstudio --uid 8787 rstudio
 
-echo -e "Testme1234\nTestme1234" | passwd rstudio
+echo -e "SECRET\nSECRET" | passwd rstudio
 
 apt-get install -y libzmq3-dev  libglpk40 libnode-dev
 
