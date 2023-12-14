@@ -19,8 +19,8 @@ CERT="/Users/michael/projects/aws/certs/michael.pem"
 
 # create random rstudio password and store it in a secret 
 
-## rstudiopw will be a 12 character base64 string 
-rstudiopw=`openssl rand -base64 12`
+## rstudiopw will be a 12 character random string with mixed upper and lowercase characters + numbers
+rstudiopw=`python -c "import random,string; x=''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=12));print(x)"`
 
 ## let's label the secret so it can be recognised again 
 secret_name="rstudiopw-cluster-$CLUSTERNAME"
