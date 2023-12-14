@@ -29,11 +29,11 @@ aws secretsmanager create-secret \
     --description "Secret for rstudio user password on AWS ParallelCluster $CLUSTERNAME" \
     --secret-string "$rstudiopw"
 
-## if secret already exists from a left-over install, let's update it 
 if [ $? -eq 254 ]; then
    secret_id=`aws secretsmanager list-secrets --filters Key=name,Values=$secret_name | jq -r '.SecretList | .[]| .ARN'`
+   echo "secret $secret_name already exists, we need to update it"
    aws secretsmanager update-secret \
-      --secret-id $secret_id \
+      --secret-id "$secret_id" \
       --secret-string "$rstudiopw"
 else
    secret_id=`aws secretsmanager list-secrets --filters Key=name,Values=$secret_name | jq -r '.SecretList | .[]| .ARN'`
@@ -42,6 +42,8 @@ fi
 get_secret=`aws secretsmanager get-secret-value --secret-id $secret_id | jq -r '.SecretString'`
 
 echo "rstudio user password is now set to $get_secret"
+
+
 
 rm -rf tmp
 mkdir -p tmp
