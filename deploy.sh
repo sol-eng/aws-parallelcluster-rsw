@@ -19,8 +19,8 @@ CERT="/Users/michael/projects/aws/certs/michael.pem"
 
 # create random rstudio password and store it in a secret 
 
-## rstudiopw will be a 8 character hex string (2^32 possibilities)
-rstudiopw=`openssl rand -hex 4`
+## rstudiopw will be a 12 character base64 string 
+rstudiopw=`openssl rand -base64 12`
 
 ## let's label the secret so it can be recognised again 
 secret_name="rstudiopw-cluster-$CLUSTERNAME"
