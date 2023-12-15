@@ -10,18 +10,50 @@ KEY="add-keyname"
 # Posit Workbench Version
 PWB_VER=2022.07.2-576.pro12
 PWB_VER=2022.12.0-353.pro20
-PWB_VER=2023.03.0-386.pro1
+PWB_VER=2023.09.1-494.pro2
 #PWB_VER=2023.05.0-daily-312.pro2
 # SLURM Version - use only "-" to resemble git tag version
 SLURM_VER=22-05-5-1
 
 CERT="/Users/michael/projects/aws/certs/michael.pem"
 
+# create random rstudio password and store it in a secret 
+
+## rstudiopw will be a 12 character random string with mixed upper and lowercase characters + numbers
+rstudiopw=`python -c "import random,string; x=''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=12));print(x)"`
+
+## let's label the secret so it can be recognised again 
+secret_name="rstudiopw-cluster-$CLUSTERNAME"
+aws secretsmanager create-secret \
+    --name $secret_name \
+    --description "Secret for rstudio user password on AWS ParallelCluster $CLUSTERNAME" \
+    --secret-string "$rstudiopw"
+
+if [ $? -eq 254 ]; then
+   secret_id=`aws secretsmanager list-secrets --filters Key=name,Values=$secret_name | jq -r '.SecretList | .[]| .ARN'`
+   echo "secret $secret_name already exists, we need to update it"
+   aws secretsmanager update-secret \
+      --secret-id "$secret_id" \
+      --secret-string "$rstudiopw"
+else
+   secret_id=`aws secretsmanager list-secrets --filters Key=name,Values=$secret_name | jq -r '.SecretList | .[]| .ARN'`
+fi
+
+get_secret=`aws secretsmanager get-secret-value --secret-id $secret_id | jq -r '.SecretString'`
+
+echo "rstudio user password is now set to $get_secret"
+
+
+
 rm -rf tmp
 mkdir -p tmp
 cp -Rf scripts/* tmp
 cat scripts/aliases.sh | sed "s#CERT#${CERT}#" > tmp/aliases.sh
-cat scripts/install-rsw.sh | sed "s/PWB_VER/$PWB_VER/" | sed "s#S3_BUCKETNAME#${S3_BUCKETNAME}#g" > tmp/install-rsw.sh
+cat scripts/install-rsw.sh | sed "s/PWB_VER/$PWB_VER/" \
+   | sed "s#S3_BUCKETNAME#${S3_BUCKETNAME}#g" \
+   | sed "s#SECRET#$get_secret#g"> tmp/install-rsw.sh
+
+cat scripts/install-compute.sh | sed "s#SECRET#$get_secret#g" > tmp/install-compute.sh
 
 for i in scripts/*.sdef      
 do

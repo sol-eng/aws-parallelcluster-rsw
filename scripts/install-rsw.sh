@@ -138,8 +138,9 @@ useradd -s /bin/bash -m -d /data/rstudio --system --gid rstudio --uid 8787 rstud
 groupadd --system --gid 8788 rstudio-admins
 groupadd --system --gid 8789 rstudio-superuser-admins
 usermod -G rstudio-admins,rstudio-superuser-admins rstudio
- 
-echo -e "Testme1234\nTestme1234" | passwd rstudio
+
+# below SECRET string will be replaced by actual secret value upon cluster deployment 
+echo -e "SECRET\nSECRET" | passwd rstudio
 
 cat  > /home/rstudio/.Rprofile << EOF
 #set SLURM binaries PATH so that RSW Launcher jobs work
