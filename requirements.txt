@@ -84,5 +84,5 @@ six==1.16.0
 tabulate==0.8.10
 typeguard==2.13.3
 typing_extensions==4.5.0
-urllib3==1.26.15
+urllib3==1.26.18
 Werkzeug==2.3.8
