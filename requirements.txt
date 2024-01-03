@@ -78,7 +78,7 @@ publication==0.0.3
 pyrsistent==0.19.3
 python-dateutil==2.8.2
 PyYAML==5.4.1
-requests==2.30.0
+requests==2.31.0
 s3transfer==0.6.1
 six==1.16.0
 tabulate==0.8.10
