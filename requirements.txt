@@ -63,7 +63,7 @@ clickclick==20.10.2
 connexion==2.13.1
 constructs==3.4.293
 Flask==2.3.2
-idna==3.4
+idna==3.7
 importlib-resources==5.12.0
 inflection==0.5.1
 itsdangerous==2.1.2
@@ -78,7 +78,7 @@ publication==0.0.3
 pyrsistent==0.19.3
 python-dateutil==2.8.2
 PyYAML==5.4.1
-requests==2.31.0
+requests==2.32.0
 s3transfer==0.6.1
 six==1.16.0
 tabulate==0.8.10
